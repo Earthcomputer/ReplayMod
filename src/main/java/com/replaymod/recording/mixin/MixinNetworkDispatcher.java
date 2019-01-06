@@ -1,5 +1,5 @@
 package com.replaymod.recording.mixin;
-
+/*
 import com.replaymod.recording.handler.FMLHandshakeFilter;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelPipeline;
@@ -32,6 +32,7 @@ public abstract class MixinNetworkDispatcher {
      * Injects a {@link FMLHandshakeFilter} on the client side to filter out
      * those extra, unexpected packets.
      */
+    /*
     @Inject(method = "insertIntoChannel", at=@At("HEAD"))
     public void replayModRecording_setupForLocalRecording(CallbackInfo cb) {
         // If we're in multiplayer, everything is fine as is
@@ -61,3 +62,4 @@ public abstract class MixinNetworkDispatcher {
         return self.setAutoRead(autoRead);
     }
 }
+*/

@@ -6,10 +6,17 @@
   "client": [
     "MixinNetHandlerLoginClient",
     "MixinNetHandlerPlayClient",
-    "MixinNetworkDispatcher",
     "MixinPlayerControllerMP",
     "MixinRenderGlobal",
-    "MixinWorldClient"
+    "MixinWorldClient",
+    "MixinNetworkManager",
+    "MixinGuiHandler",
+    "MixinEntityPlayer",
+    "MixinEntityItem",
+    "MixinIntegratedServer",
+    "MixinSPacketSpawnMob",
+    "MixinSPacketSpawnPlayer",
+    "MixinResourcePackRepository"
   ],
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.6.11",

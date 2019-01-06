@@ -5,6 +5,8 @@ import com.google.common.io.Files;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.replaymod.core.ducks.IMinecraft;
+import com.replaymod.recording.ducks.IResourcePackRepository;
 import com.replaymod.replaystudio.replay.ReplayFile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreenWorking;
@@ -146,7 +148,8 @@ public class ResourcePackRecorder {
     }
 
     private ListenableFuture downloadResourcePack(final int requestId, String url, String hash) {
-        final ResourcePackRepository repo = mc.mcResourcePackRepository;
+        final ResourcePackRepository repo = ((IMinecraft) mc).getMcResourcePackRepository();
+        final IResourcePackRepository irepo = (IResourcePackRepository) repo;
         String fileName;
         if (hash.matches("^[a-f0-9]{40}$")) {
             fileName = hash;
@@ -164,8 +167,8 @@ public class ResourcePackRecorder {
             fileName = "legacy_" + fileName.replaceAll("\\W", "");
         }
 
-        final File file = new File(repo.dirServerResourcepacks, fileName);
-        repo.lock.lock();
+        final File file = new File(irepo.getDirServerResourcepacks(), fileName);
+        irepo.getLock().lock();
         try {
             repo.clearResourcePack();
 
@@ -191,8 +194,8 @@ public class ResourcePackRecorder {
             Futures.getUnchecked(mc.addScheduledTask(() -> mc.displayGuiScreen(guiScreen)));
 
             Map<String, String> sessionInfo = ResourcePackRepository.getDownloadHeaders();
-            repo.downloadingPacks = HttpUtil.downloadResourcePack(file, url, sessionInfo, 50 * 1024 * 1024, guiScreen, mc.getProxy());
-            Futures.addCallback(repo.downloadingPacks, new FutureCallback<Object>() {
+            irepo.setDownloadingPacks(HttpUtil.downloadResourcePack(file, url, sessionInfo, 50 * 1024 * 1024, guiScreen, mc.getProxy()));
+            Futures.addCallback(irepo.getDownloadingPacks(), new FutureCallback<Object>() {
                 @Override
                 public void onSuccess(Object value) {
                     recordResourcePack(file, requestId);
@@ -204,9 +207,9 @@ public class ResourcePackRecorder {
                     throwable.printStackTrace();
                 }
             });
-            return repo.downloadingPacks;
+            return irepo.getDownloadingPacks();
         } finally {
-            repo.lock.unlock();
+            irepo.getLock().unlock();
         }
     }
 

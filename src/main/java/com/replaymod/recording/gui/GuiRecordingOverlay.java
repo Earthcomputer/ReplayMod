@@ -7,12 +7,9 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.replaymod.core.ReplayMod.TEXTURE;
-import static com.replaymod.core.ReplayMod.TEXTURE_SIZE;
+import static com.replaymod.LiteModReplayMod.TEXTURE;
+import static com.replaymod.LiteModReplayMod.TEXTURE_SIZE;
 
 /**
  * Renders overlay during recording.
@@ -20,6 +17,7 @@ import static com.replaymod.core.ReplayMod.TEXTURE_SIZE;
 public class GuiRecordingOverlay {
     private final Minecraft mc;
     private final SettingsRegistry settingsRegistry;
+    private boolean registered;
 
     public GuiRecordingOverlay(Minecraft mc, SettingsRegistry settingsRegistry) {
         this.mc = mc;
@@ -27,24 +25,25 @@ public class GuiRecordingOverlay {
     }
 
     public void register() {
-        MinecraftForge.EVENT_BUS.register(this);
+        registered = true;
     }
 
     public void unregister() {
-        MinecraftForge.EVENT_BUS.unregister(this);
+        registered = false;
     }
 
     /**
      * Render the recording icon and text in the top left corner of the screen.
      * @param event Rendered post game overlay
      */
-    @SubscribeEvent
-    public void renderRecordingIndicator(RenderGameOverlayEvent.Post event) {
-        if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
+    public void renderRecordingIndicator() {
+        if (!registered)
+            return;
+
         if (settingsRegistry.get(Setting.INDICATOR)) {
             FontRenderer fontRenderer = mc.fontRenderer;
             fontRenderer.drawString(I18n.format("replaymod.gui.recording").toUpperCase(), 30, 18 - (fontRenderer.FONT_HEIGHT / 2), 0xffffffff);
-            mc.renderEngine.bindTexture(TEXTURE);
+            mc.getTextureManager().bindTexture(TEXTURE);
             GlStateManager.resetColor();
             GlStateManager.enableAlpha();
             Gui.drawModalRectWithCustomSizedTexture(10, 10, 58, 20, 16, 16, TEXTURE_SIZE, TEXTURE_SIZE);

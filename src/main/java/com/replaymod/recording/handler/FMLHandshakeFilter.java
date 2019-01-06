@@ -1,5 +1,5 @@
 package com.replaymod.recording.handler;
-
+/*
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.minecraftforge.fml.common.network.handshake.FMLHandshakeMessage;
@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.network.handshake.FMLHandshakeMessage;
  * otherwise wired bugs related to semi-singletons can occur.
  * See https://bugs.replaymod.com/show_bug.cgi?id=44
  */
+/*
 public class FMLHandshakeFilter extends SimpleChannelInboundHandler<FMLHandshakeMessage> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FMLHandshakeMessage msg) throws Exception {
@@ -23,3 +24,4 @@ public class FMLHandshakeFilter extends SimpleChannelInboundHandler<FMLHandshake
         }
     }
 }
+*/

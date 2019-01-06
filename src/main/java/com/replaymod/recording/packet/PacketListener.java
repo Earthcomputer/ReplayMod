@@ -1,6 +1,8 @@
 package com.replaymod.recording.packet;
 
 import com.replaymod.core.utils.Restrictions;
+import com.replaymod.recording.ducks.ISPacketSpawnMob;
+import com.replaymod.recording.ducks.ISPacketSpawnPlayer;
 import com.replaymod.replaystudio.data.Marker;
 import com.replaymod.replaystudio.replay.ReplayFile;
 import com.replaymod.replaystudio.replay.ReplayMetaData;
@@ -22,7 +24,6 @@ import net.minecraft.network.play.server.SPacketResourcePackSend;
 import net.minecraft.network.play.server.SPacketSpawnMob;
 import net.minecraft.network.play.server.SPacketSpawnPlayer;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -172,12 +173,15 @@ public class PacketListener extends ChannelInboundHandlerAdapter {
                     return;
                 }
 
+                // TODO: Forge compatibility
+                /*
                 if (packet instanceof FMLProxyPacket) {
                     // This packet requires special handling
                     ((FMLProxyPacket) packet).toS3FPackets().forEach(this::save);
                     super.channelRead(ctx, msg);
                     return;
                 }
+                */
 
                 save(packet);
 
@@ -205,11 +209,12 @@ public class PacketListener extends ChannelInboundHandlerAdapter {
     private byte[] getPacketData(Packet packet) throws Exception {
         if (packet instanceof SPacketSpawnMob) {
             SPacketSpawnMob p = (SPacketSpawnMob) packet;
-            if (p.dataManager == null) {
-                p.dataManager = new EntityDataManager(null);
+            ISPacketSpawnMob ip = (ISPacketSpawnMob) p;
+            if (ip.getDataManager() == null) {
+                ip.setDataManager(new EntityDataManager(null));
                 if (p.getDataManagerEntries() != null) {
                     for (EntityDataManager.DataEntry<?> entry : p.getDataManagerEntries()) {
-                        DataManager_set(p.dataManager, entry);
+                        DataManager_set(ip.getDataManager(), entry);
                     }
                 }
             }
@@ -217,11 +222,12 @@ public class PacketListener extends ChannelInboundHandlerAdapter {
 
         if (packet instanceof SPacketSpawnPlayer) {
             SPacketSpawnPlayer p = (SPacketSpawnPlayer) packet;
-            if (p.watcher == null) {
-                p.watcher = new EntityDataManager(null);
+            ISPacketSpawnPlayer ip = (ISPacketSpawnPlayer) p;
+            if (ip.getWatcher() == null) {
+                ip.setWatcher(new EntityDataManager(null));
                 if (p.getDataManagerEntries() != null) {
                     for (EntityDataManager.DataEntry<?> entry : p.getDataManagerEntries()) {
-                        DataManager_set(p.watcher, entry);
+                        DataManager_set(ip.getWatcher(), entry);
                     }
                 }
             }

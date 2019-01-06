@@ -1,6 +1,7 @@
 package com.replaymod.recording.mixin;
 
 import com.replaymod.recording.ReplayModRecording;
+import com.replaymod.recording.ducks.INetworkManager;
 import net.minecraft.client.network.NetHandlerLoginClient;
 import net.minecraft.network.NetworkManager;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,6 +28,6 @@ public abstract class MixinNetHandlerLoginClient {
 
     @Inject(method = "handleLoginSuccess", at=@At("RETURN"))
     public void replayModRecording_raceConditionWorkAround(CallbackInfo cb) {
-        networkManager.channel().config().setAutoRead(true);
+        ((INetworkManager) networkManager).getChannel().config().setAutoRead(true);
     }
 }

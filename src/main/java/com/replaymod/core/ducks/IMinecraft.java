@@ -1,6 +1,7 @@
 package com.replaymod.core.ducks;
 
 import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.resources.ResourcePackRepository;
 import net.minecraft.util.Timer;
 
 import java.util.List;
@@ -18,5 +19,7 @@ public interface IMinecraft {
     Timer getTimer();
 
     void doResize(int width, int height);
+
+    ResourcePackRepository getMcResourcePackRepository();
 
 }

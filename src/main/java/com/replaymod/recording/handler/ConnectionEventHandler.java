@@ -1,8 +1,9 @@
 package com.replaymod.recording.handler;
 
-import com.replaymod.core.utils.ModCompat;
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.recording.Setting;
+import com.replaymod.recording.ducks.INetworkManager;
 import com.replaymod.recording.gui.GuiRecordingOverlay;
 import com.replaymod.recording.packet.PacketListener;
 import com.replaymod.replaystudio.replay.ReplayFile;
@@ -12,13 +13,12 @@ import com.replaymod.replaystudio.studio.ReplayStudio;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.world.WorldType;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 
 /**
  * Handles connection events and initiates recording if enabled.
@@ -31,13 +31,13 @@ public class ConnectionEventHandler {
     private static final Minecraft mc = Minecraft.getMinecraft();
 
     private final Logger logger;
-    private final ReplayMod core;
+    private final LiteModReplayMod core;
 
     private RecordingEventHandler recordingEventHandler;
     private PacketListener packetListener;
     private GuiRecordingOverlay guiOverlay;
 
-    public ConnectionEventHandler(Logger logger, ReplayMod core) {
+    public ConnectionEventHandler(Logger logger, LiteModReplayMod core) {
         this.logger = logger;
         this.core = core;
     }
@@ -80,16 +80,16 @@ public class ConnectionEventHandler {
             File currentFile = new File(folder, Utils.replayNameToFileName(name));
             ReplayFile replayFile = new ZipReplayFile(new ReplayStudio(), currentFile);
 
-            replayFile.writeModInfo(ModCompat.getInstalledNetworkMods());
+            replayFile.writeModInfo(Collections.emptyList()); // TODO: compatibility with Forge mods?
 
             ReplayMetaData metaData = new ReplayMetaData();
             metaData.setSingleplayer(local);
             metaData.setServerName(worldName);
-            metaData.setGenerator("ReplayMod v" + ReplayMod.getContainer().getVersion());
+            metaData.setGenerator("ReplayMod v" + LiteModReplayMod.instance.getVersion());
             metaData.setDate(System.currentTimeMillis());
-            metaData.setMcVersion(ReplayMod.getMinecraftVersion());
+            metaData.setMcVersion(LiteModReplayMod.getMinecraftVersion());
             packetListener = new PacketListener(replayFile, metaData);
-            networkManager.channel().pipeline().addBefore(packetHandlerKey, "replay_recorder", packetListener);
+            ((INetworkManager) networkManager).getChannel().pipeline().addBefore(packetHandlerKey, "replay_recorder", packetListener);
 
             recordingEventHandler = new RecordingEventHandler(packetListener);
             recordingEventHandler.register();
@@ -98,14 +98,13 @@ public class ConnectionEventHandler {
             guiOverlay.register();
 
             core.printInfoToChat("replaymod.chat.recordingstarted");
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             core.printWarningToChat("replaymod.chat.recordingfailed");
         }
     }
 
-    @SubscribeEvent
-    public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
+    public void onDisconnectedFromServerEvent() {
         if (packetListener != null) {
             guiOverlay.unregister();
             guiOverlay = null;
@@ -117,5 +116,13 @@ public class ConnectionEventHandler {
 
     public PacketListener getPacketListener() {
         return packetListener;
+    }
+
+    public RecordingEventHandler getRecordingEventHandler() {
+        return recordingEventHandler;
+    }
+
+    public GuiRecordingOverlay getGuiOverlay() {
+        return guiOverlay;
     }
 }

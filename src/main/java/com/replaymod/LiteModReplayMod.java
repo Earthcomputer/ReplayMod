@@ -18,6 +18,7 @@ import com.replaymod.editor.handler.EditorGuiHandler;
 import com.replaymod.extras.ReplayModExtras;
 import com.replaymod.online.ReplayModOnline;
 import com.replaymod.online.handler.OnlineGuiHandler;
+import com.replaymod.recording.ReplayModRecording;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replaystudio.util.I18n;
 import de.johni0702.minecraft.gui.container.GuiScreen;
@@ -34,7 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderListener, GameLoopListener, Tickable {
+public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRenderListener, RenderListener, GameLoopListener, Tickable {
 
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static final IMinecraft imc = (IMinecraft) Minecraft.getMinecraft();
@@ -62,6 +63,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
         ReplayModExtras.instance = new ReplayModExtras();
         ReplayModEditor.instance = new ReplayModEditor();
         ReplayModOnline.instance = new ReplayModOnline();
+        ReplayModRecording.instance = new ReplayModRecording();
     }
 
     public KeyBindingRegistry getKeyBindingRegistry() {
@@ -105,6 +107,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
         ReplayModExtras.instance.init();
         ReplayModEditor.instance.init();
         ReplayModOnline.instance.init();
+        ReplayModRecording.instance.init();
     }
 
     @Override
@@ -202,6 +205,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
         keyBindingRegistry.onTick();
         ReplayModCompat.instance.onRenderTickStart();
         ReplayModExtras.instance.beginTick();
+        ReplayModRecording.instance.getRecordingEventHandler().checkForGamePaused();
     }
 
     @Override
@@ -210,6 +214,15 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
 
     @Override
     public void onSetupCameraTransform() {
+    }
+
+    @Override
+    public void onPreRenderHUD(int screenWidth, int screenHeight) {
+    }
+
+    @Override
+    public void onPostRenderHUD(int screenWidth, int screenHeight) {
+        ReplayModRecording.instance.getConnectionEventHandler().getGuiOverlay().renderRecordingIndicator();
     }
 
     @Override
@@ -287,6 +300,10 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
         for (int i = replayTimerListeners.size() - 1; i >= 0; i--) {
             replayTimerListeners.get(i).run();
         }
+    }
+
+    public void onUnloadWorld() {
+        ReplayModRecording.instance.onDisconnected();
     }
 
     public Minecraft getMinecraft() {

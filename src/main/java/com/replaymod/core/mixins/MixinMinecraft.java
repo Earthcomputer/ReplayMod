@@ -1,12 +1,18 @@
 package com.replaymod.core.mixins;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.ducks.IMinecraft;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.resources.ResourcePackRepository;
 import net.minecraft.util.Timer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -19,10 +25,10 @@ public abstract class MixinMinecraft implements IMinecraft {
 
     @Shadow @Final private Queue<FutureTask<?>> scheduledTasks;
     @Shadow @Final private List<IResourcePack> defaultResourcePacks;
+    @Shadow @Final private Timer timer;
+    @Shadow private ResourcePackRepository mcResourcePackRepository;
 
     @Shadow protected abstract void resize(int width, int height);
-
-    @Shadow @Final private Timer timer;
 
     @Override
     public Queue<FutureTask<?>> getScheduledTasks() {
@@ -65,5 +71,17 @@ public abstract class MixinMinecraft implements IMinecraft {
     @Override
     public void doResize(int width, int height) {
         resize(width, height);
+    }
+
+    @Override
+    public ResourcePackRepository getMcResourcePackRepository() {
+        return mcResourcePackRepository;
+    }
+
+    @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
+    public void onLoadWorld(WorldClient world, String loadingMessage, CallbackInfo ci) {
+        if (world == null) {
+            LiteModReplayMod.instance.onUnloadWorld();
+        }
     }
 }
