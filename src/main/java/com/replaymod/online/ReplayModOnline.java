@@ -1,23 +1,18 @@
 package com.replaymod.online;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.online.api.ApiClient;
+import com.replaymod.online.api.AuthData;
 import com.replaymod.online.gui.GuiLoginPrompt;
 import com.replaymod.online.gui.GuiReplayDownloading;
 import com.replaymod.online.gui.GuiSaveModifiedReplay;
-import com.replaymod.online.handler.GuiHandler;
+import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replay.ReplayModReplay;
-import com.replaymod.replay.events.ReplayCloseEvent;
 import com.replaymod.replaystudio.replay.ReplayFile;
 import com.replaymod.replaystudio.replay.ZipReplayFile;
 import com.replaymod.replaystudio.studio.ReplayStudio;
 import de.johni0702.minecraft.gui.container.GuiScreen;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -25,19 +20,10 @@ import java.io.IOException;
 
 import static net.minecraft.client.Minecraft.getMinecraft;
 
-@Mod(modid = ReplayModOnline.MOD_ID,
-        version = "@MOD_VERSION@",
-        acceptedMinecraftVersions = "@MC_VERSION@",
-        acceptableRemoteVersions = "*",
-        clientSideOnly = true,
-        useMetadata = true)
 public class ReplayModOnline {
-    public static final String MOD_ID = "replaymod-online";
-
-    @Mod.Instance(MOD_ID)
     public static ReplayModOnline instance;
 
-    private ReplayMod core;
+    private LiteModReplayMod core;
 
     private ReplayModReplay replayModule;
 
@@ -52,34 +38,44 @@ public class ReplayModOnline {
      */
     private File currentReplayOutputFile;
 
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        LOGGER = event.getModLog();
-        core = ReplayMod.instance;
+    public void init() {
+        LOGGER = LogManager.getLogger("replaymod-online");
+        core = LiteModReplayMod.instance;
         replayModule = ReplayModReplay.instance;
 
         core.getSettingsRegistry().register(Setting.class);
 
+        // TODO
+        /*
         Configuration config = new Configuration(event.getSuggestedConfigurationFile());
         ConfigurationAuthData authData = new ConfigurationAuthData(config);
-        apiClient = new ApiClient(authData);
-        authData.load(apiClient);
-    }
+        */
+        apiClient = new ApiClient(new AuthData() {
+            @Override
+            public String getUserName() {
+                return null;
+            }
 
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
+            @Override
+            public String getAuthKey() {
+                return null;
+            }
+
+            @Override
+            public void setData(String userName, String authKey) {
+
+            }
+        });
+        //authData.load(apiClient);
+
         if (!getDownloadsFolder().exists()){
             if (!getDownloadsFolder().mkdirs()) {
                 LOGGER.warn("Failed to create downloads folder: " + getDownloadsFolder());
             }
         }
-
-        new GuiHandler(this).register();
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
+    public void postInit() {
         // Initial login prompt
         if (!core.getSettingsRegistry().get(Setting.SKIP_LOGIN_PROMPT)) {
             if (!isLoggedIn()) {
@@ -91,7 +87,7 @@ public class ReplayModOnline {
         }
     }
 
-    public ReplayMod getCore() {
+    public LiteModReplayMod getCore() {
         return core;
     }
 
@@ -135,8 +131,7 @@ public class ReplayModOnline {
         }
     }
 
-    @SubscribeEvent
-    public void onReplayClosed(ReplayCloseEvent.Post event) {
+    public void onReplayClosed(ReplayHandler handler) {
         if (currentReplayOutputFile != null) {
             if (currentReplayOutputFile.exists()) { // Replay was modified, ask user for new name
                 new GuiSaveModifiedReplay(currentReplayOutputFile).display();

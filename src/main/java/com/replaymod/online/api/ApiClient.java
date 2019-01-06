@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.online.AuthenticationHash;
 import com.replaymod.online.api.replay.ReplayModApiMethods;
 import com.replaymod.online.api.replay.SearchQuery;
@@ -244,7 +245,7 @@ public class ApiClient {
 
         QueryBuilder builder = new QueryBuilder(ReplayModApiMethods.up_to_date);
         builder.put("version", versionIdentifier);
-        builder.put("minecraft", ReplayMod.getMinecraftVersion());
+        builder.put("minecraft", LiteModReplayMod.getMinecraftVersion());
         return invokeAndReturn(builder, Success.class).isSuccess();
     }
 

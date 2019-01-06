@@ -16,6 +16,8 @@ import com.replaymod.core.utils.OpenGLUtils;
 import com.replaymod.editor.ReplayModEditor;
 import com.replaymod.editor.handler.EditorGuiHandler;
 import com.replaymod.extras.ReplayModExtras;
+import com.replaymod.online.ReplayModOnline;
+import com.replaymod.online.handler.OnlineGuiHandler;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replaystudio.util.I18n;
 import de.johni0702.minecraft.gui.container.GuiScreen;
@@ -45,6 +47,10 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
 
     public static LiteModReplayMod instance;
 
+    public static String getMinecraftVersion() {
+        return "1.12";
+    }
+
     /*
     @Deprecated
     public static Configuration config;
@@ -55,6 +61,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
         ReplayModCompat.instance = new ReplayModCompat();
         ReplayModExtras.instance = new ReplayModExtras();
         ReplayModEditor.instance = new ReplayModEditor();
+        ReplayModOnline.instance = new ReplayModOnline();
     }
 
     public KeyBindingRegistry getKeyBindingRegistry() {
@@ -97,6 +104,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
         ReplayModCompat.instance.init();
         ReplayModExtras.instance.init();
         ReplayModEditor.instance.init();
+        ReplayModOnline.instance.init();
     }
 
     @Override
@@ -151,6 +159,8 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
                 e.printStackTrace();
             }
         });
+
+        ReplayModOnline.instance.postInit();
     }
 
     /**
@@ -242,6 +252,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
 
     public void preReplayClosed(ReplayHandler handler) {
         ReplayModExtras.instance.preReplayClosed(handler);
+        ReplayModOnline.instance.onReplayClosed(handler);
     }
 
     public void postReplayClosed(ReplayHandler handler) {
@@ -254,10 +265,12 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
 
     public void injectIntoMainMenu(GuiMainMenu gui) {
         EditorGuiHandler.injectIntoMainMenu(gui);
+        OnlineGuiHandler.injectIntoMainMenu(gui);
     }
 
     public void onMainMenuActionPerformed(GuiMainMenu gui, GuiButton button) {
         EditorGuiHandler.onMainMenuActionPerformed(gui, button);
+        OnlineGuiHandler.onMainMenuActionPerformed(gui, button);
     }
 
     public Minecraft getMinecraft() {

@@ -1,5 +1,5 @@
 package com.replaymod.online;
-
+/*
 import com.replaymod.online.api.ApiClient;
 import com.replaymod.online.api.AuthData;
 import com.replaymod.online.api.replay.holders.AuthConfirmation;
@@ -9,6 +9,7 @@ import net.minecraftforge.common.config.Property;
 /**
  * Auth data stored in a {@link Configuration}.
  */
+/*
 public class ConfigurationAuthData implements AuthData {
 
     private final Configuration config;
@@ -24,6 +25,7 @@ public class ConfigurationAuthData implements AuthData {
      * If the data is invalid, it is removed from the config.
      * @param apiClient Api client used for validating the auth data
      */
+    /*
     public void load(ApiClient apiClient) {
         Property property = config.get("authkey", "authkey", (String) null);
         if (property != null) {
@@ -61,3 +63,4 @@ public class ConfigurationAuthData implements AuthData {
         config.save();
     }
 }
+*/

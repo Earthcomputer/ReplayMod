@@ -8,6 +8,7 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.replaymod.core.SettingsRegistry;
 import com.replaymod.core.gui.GuiReplaySettings;
 import com.replaymod.core.utils.Utils;
+import com.replaymod.online.handler.OnlineGuiHandler;
 import com.replaymod.replay.ReplayModReplay;
 import com.replaymod.replay.Setting;
 import com.replaymod.replaystudio.replay.ReplayFile;
@@ -274,6 +275,8 @@ public class GuiReplayViewer extends GuiScreen implements Typeable {
                 size(list, width, y(buttonPanel) - 10 - y(list));
             }
         });
+
+        OnlineGuiHandler.injectIntoReplayViewer(this);
     }
 
     private final GuiImage defaultThumbnail = new GuiImage().setTexture(Utils.DEFAULT_THUMBNAIL);
