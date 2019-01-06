@@ -1,9 +1,9 @@
 package com.replaymod.compat.mapwriter.mixin;
 
+import com.replaymod.compat.CompatUtil;
 import com.replaymod.replay.ReplayModReplay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraftforge.fml.common.Loader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,7 +22,7 @@ public abstract class MixinMinecraft {
     @Inject(method = "getCurrentServerData", cancellable = true, at = @At("HEAD"))
     private void replayModCompat_fixBug96(CallbackInfoReturnable<ServerData> ci) {
         if (currentServerData == null
-                && (Loader.isModLoaded("mapwriter") || Loader.isModLoaded("MapWriter"))
+                && (CompatUtil.isForgeModLoaded("mapwriter") || CompatUtil.isForgeModLoaded("MapWriter"))
                 && ReplayModReplay.instance.getReplayHandler() != null) {
             for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
                 if ("mapwriter.util.Utils".equals(elem.getClassName()) && "getWorldName".equals(elem.getMethodName())) {

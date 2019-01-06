@@ -1,19 +1,16 @@
 package com.replaymod.compat.optifine;
 
-import com.replaymod.render.events.ReplayRenderEvent;
+import com.replaymod.compat.CompatUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class DisableFastRender {
 
-    private final Minecraft mc = Minecraft.getMinecraft();
+    private static boolean wasFastRender = false;
 
-    private boolean wasFastRender = false;
+    public static void onRenderBegin() {
+        if (!CompatUtil.hasOptifine()) return;
 
-    @SubscribeEvent
-    public void onRenderBegin(ReplayRenderEvent.Pre event) {
-        if (!FMLClientHandler.instance().hasOptifine()) return;
+        Minecraft mc = Minecraft.getMinecraft();
 
         try {
             wasFastRender = (boolean) OptifineReflection.gameSettings_ofFastRender.get(mc.gameSettings);
@@ -23,9 +20,10 @@ public class DisableFastRender {
         }
     }
 
-    @SubscribeEvent
-    public void onRenderEnd(ReplayRenderEvent.Post event){
-        if (!FMLClientHandler.instance().hasOptifine()) return;
+    public static void onRenderEnd() {
+        if (!CompatUtil.hasOptifine()) return;
+
+        Minecraft mc = Minecraft.getMinecraft();
 
         try {
             OptifineReflection.gameSettings_ofFastRender.set(mc.gameSettings, wasFastRender);

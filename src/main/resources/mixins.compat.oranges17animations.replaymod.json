@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "package": "com.replaymod.compat.oranges17animations.mixin",
+  "mixins": [],
+  "server": [],
+  "client": [
+    "MixinRenderLivingBase"
+  ],
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.6.11",
+  "refmap": "mixins.replaymod.refmap.json"
+}

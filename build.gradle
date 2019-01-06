@@ -54,6 +54,7 @@ litemod {
         author = 'CrushedPixel, johni0702, Earthcomputer'
         mixinConfigs = [
                 'mixins.compat.mapwriter.replaymod.json',
+                'mixins.compat.oranges17animations.replaymod.json',
                 'mixins.compat.shaders.replaymod.json',
                 'mixins.extras.playeroverview.replaymod.json',
                 'mixins.recording.replaymod.json',

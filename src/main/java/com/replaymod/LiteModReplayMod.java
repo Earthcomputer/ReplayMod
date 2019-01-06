@@ -4,6 +4,8 @@ import com.google.common.io.Files;
 import com.google.common.util.concurrent.ListenableFutureTask;
 import com.mumfrey.liteloader.*;
 import com.mumfrey.liteloader.core.LiteLoader;
+import com.replaymod.compat.CompatUtil;
+import com.replaymod.compat.ReplayModCompat;
 import com.replaymod.core.KeyBindingRegistry;
 import com.replaymod.core.Setting;
 import com.replaymod.core.SettingsRegistry;
@@ -50,6 +52,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
 
     public LiteModReplayMod() {
         instance = this;
+        ReplayModCompat.instance = new ReplayModCompat();
         ReplayModExtras.instance = new ReplayModExtras();
         ReplayModEditor.instance = new ReplayModEditor();
     }
@@ -91,7 +94,9 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
 
         getSettingsRegistry().register(Setting.class);
 
+        ReplayModCompat.instance.init();
         ReplayModExtras.instance.init();
+        ReplayModEditor.instance.init();
     }
 
     @Override
@@ -111,15 +116,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
 
         settingsRegistry.save(); // Save default values to disk
 
-        boolean hasOptifine;
-        try {
-            Class.forName("optifine.Utils");
-            hasOptifine = true;
-        } catch (ClassNotFoundException e) {
-            hasOptifine = false;
-        }
-
-        if(!hasOptifine)
+        if(!CompatUtil.hasOptifine())
             GameSettings.Options.RENDER_DISTANCE.setValueMax(64f);
 
         runLater(() -> {
@@ -193,6 +190,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
             runLater(task);
         }
         keyBindingRegistry.onTick();
+        ReplayModCompat.instance.onRenderTickStart();
         ReplayModExtras.instance.beginTick();
     }
 
@@ -206,6 +204,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
 
     @Override
     public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
+        ReplayModCompat.instance.onRenderTickEnd();
         ReplayModExtras.instance.endTick();
     }
 

@@ -1,11 +1,9 @@
 package com.replaymod.compat.oranges17animations;
 
+import com.replaymod.compat.CompatUtil;
 import com.replaymod.replay.camera.CameraEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.entity.EntityLivingBase;
 
 /**
  * Orange seems to have copied vast parts of the RendererLivingEntity into their ArmorAnimation class which cancels the RenderLivingEvent.Pre and calls its own code instead.
@@ -14,15 +12,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * To fix this issue, we simply cancel the RenderLivingEvent.Pre before it gets to ArmorAnimation if the entity is invisible.
  */
 public class HideInvisibleEntities {
-    private final Minecraft mc = Minecraft.getMinecraft();
-    private final boolean modLoaded = Loader.isModLoaded("animations");
+    private static final Minecraft mc = Minecraft.getMinecraft();
+    private static final boolean modLoaded = CompatUtil.isForgeModLoaded("animations");
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public void preRenderLiving(RenderLivingEvent.Pre event) {
+    public static boolean preRenderLiving(EntityLivingBase entity) {
         if (modLoaded) {
-            if (mc.player instanceof CameraEntity && event.getEntity().isInvisible()) {
-                event.setCanceled(true);
+            if (mc.player instanceof CameraEntity && entity.isInvisible()) {
+                return false;
             }
         }
+        return true;
     }
 }

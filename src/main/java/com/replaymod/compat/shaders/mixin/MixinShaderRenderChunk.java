@@ -4,6 +4,7 @@ import com.replaymod.render.hooks.EntityRendererHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -18,7 +19,7 @@ public abstract class MixinShaderRenderChunk {
      *  to always return true while rendering so no chunks are being added
      *  to a separate rendering queue
      */
-    @Inject(method = "isPlayerUpdate", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "isPlayerUpdate", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void replayModCompat_disableIsPlayerUpdate(CallbackInfoReturnable<Boolean> ci) {
         // TODO: Update to 1.12 once optifine is available
         if (((EntityRendererHandler.IEntityRenderer) mc.entityRenderer).replayModRender_getHandler() == null) return;
