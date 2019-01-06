@@ -1,6 +1,5 @@
 package com.replaymod.extras;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.Setting;
 import de.johni0702.minecraft.gui.container.AbstractGuiScreen;
 import de.johni0702.minecraft.gui.container.GuiContainer;

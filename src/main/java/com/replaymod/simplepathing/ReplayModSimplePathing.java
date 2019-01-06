@@ -1,6 +1,5 @@
 package com.replaymod.simplepathing;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.events.SettingsChangedEvent;
 import com.replaymod.replay.ReplayModReplay;
 import com.replaymod.replay.events.ReplayCloseEvent;

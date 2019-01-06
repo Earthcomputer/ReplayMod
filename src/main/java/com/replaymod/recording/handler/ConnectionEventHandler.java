@@ -1,6 +1,5 @@
 package com.replaymod.recording.handler;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.ModCompat;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.recording.Setting;

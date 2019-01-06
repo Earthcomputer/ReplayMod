@@ -5,7 +5,6 @@ import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.SettingsRegistry;
 import com.replaymod.core.gui.GuiReplaySettings;
 import com.replaymod.core.utils.Utils;

@@ -1,6 +1,5 @@
 package com.replaymod.extras.urischeme;
 
-import com.replaymod.core.ReplayMod;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.StringBuilderWriter;

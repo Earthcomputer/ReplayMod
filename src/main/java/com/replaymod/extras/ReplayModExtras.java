@@ -1,6 +1,5 @@
 package com.replaymod.extras;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.extras.advancedscreenshots.AdvancedScreenshots;
 import com.replaymod.extras.playeroverview.PlayerOverview;
 import com.replaymod.extras.urischeme.UriSchemeExtra;

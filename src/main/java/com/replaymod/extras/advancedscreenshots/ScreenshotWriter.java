@@ -1,6 +1,5 @@
 package com.replaymod.extras.advancedscreenshots;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.extras.ReplayModExtras;
 import com.replaymod.render.frame.RGBFrame;

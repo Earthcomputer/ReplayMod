@@ -1,7 +1,6 @@
 package com.replaymod.extras;
 
 import com.google.common.collect.ImmutableSet;
-import com.replaymod.core.ReplayMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.data.IMetadataSection;

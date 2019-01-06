@@ -1,5 +1,6 @@
 package com.replaymod.core.utils;
 
+import com.replaymod.core.ducks.ITimer;
 import net.minecraft.util.Timer;
 
 public class WrappedTimer extends Timer {
@@ -21,10 +22,12 @@ public class WrappedTimer extends Timer {
     }
 
     protected void copy(Timer from, Timer to) {
+        ITimer ifrom = (ITimer) from;
+        ITimer ito = (ITimer) to;
         to.elapsedTicks = from.elapsedTicks;
         to.renderPartialTicks = from.renderPartialTicks;
-        to.lastSyncSysClock = from.lastSyncSysClock;
+        ito.setLastSyncSysClock(ifrom.getLastSyncSysClock());
         to.elapsedPartialTicks = from.elapsedPartialTicks;
-        to.tickLength = from.tickLength;
+        ito.setTickLength(ifrom.getTickLength());
     }
 }

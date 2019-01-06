@@ -2,7 +2,6 @@ package com.replaymod.replay;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.Restrictions;
 import com.replaymod.core.utils.WrappedTimer;
 import com.replaymod.replay.camera.CameraEntity;

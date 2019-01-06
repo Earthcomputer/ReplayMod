@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.replaymod.core.mixins",
+  "mixins": [],
+  "server": [],
+  "client": [
+    "MixinGuiMainMenu",
+    "MixinMinecraft",
+    "MixinTimer"
+  ],
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.6.11",
+  "refmap": "mixins.replaymod.refmap.json"
+}

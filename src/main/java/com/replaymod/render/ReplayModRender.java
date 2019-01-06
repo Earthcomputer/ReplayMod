@@ -1,6 +1,5 @@
 package com.replaymod.render;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.render.utils.RenderJob;
 import com.replaymod.replay.events.ReplayCloseEvent;
 import net.minecraft.crash.CrashReport;

@@ -1,9 +1,6 @@
 package com.replaymod.core;
 
-import com.replaymod.core.events.SettingsChangedEvent;
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -13,10 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SettingsRegistry {
     private static final Object NULL_OBJECT = new Object();
     private Map<SettingKey<?>, Object> settings = new ConcurrentHashMap<>();
-    private Configuration configuration;
+    //private Configuration configuration;
 
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
+    public void setConfiguration(/*Configuration configuration*/) {
+        //this.configuration = configuration;
 
         List<SettingKey<?>> keys = new ArrayList<>(settings.keySet());
         settings.clear();
@@ -39,7 +36,8 @@ public class SettingsRegistry {
     }
 
     public void register(SettingKey<?> key) {
-        Object value;
+        Object value = NULL_OBJECT;
+        /*
         if (configuration != null) {
             if (key.getDefault() instanceof Boolean) {
                 value = configuration.get(key.getCategory(), key.getKey(), (Boolean) key.getDefault()).getBoolean();
@@ -55,6 +53,7 @@ public class SettingsRegistry {
         } else {
             value = NULL_OBJECT;
         }
+        */
         settings.put(key, value);
     }
 
@@ -71,6 +70,7 @@ public class SettingsRegistry {
     }
 
     public <T> void set(SettingKey<T> key, T value) {
+        /*
         if (key.getDefault() instanceof Boolean) {
             configuration.get(key.getCategory(), key.getKey(), (Boolean) key.getDefault()).set((Boolean) value);
         } else if (key.getDefault() instanceof Integer) {
@@ -82,12 +82,13 @@ public class SettingsRegistry {
         } else {
             throw new IllegalArgumentException("Default type " + key.getDefault().getClass() + " not supported.");
         }
+        */
         settings.put(key, value);
-        MinecraftForge.EVENT_BUS.post(new SettingsChangedEvent(this, key));
+        //MinecraftForge.EVENT_BUS.post(new SettingsChangedEvent(this, key));
     }
 
     public void save() {
-        configuration.save();
+        //configuration.save();
     }
 
     public interface SettingKey<T> {

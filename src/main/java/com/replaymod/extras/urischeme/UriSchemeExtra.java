@@ -1,6 +1,5 @@
 package com.replaymod.extras.urischeme;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.extras.Extra;
 import com.replaymod.online.ReplayModOnline;
 import de.johni0702.minecraft.gui.container.GuiScreen;

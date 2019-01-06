@@ -1,6 +1,5 @@
 package com.replaymod.extras;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replay.ReplayModReplay;
 import com.replaymod.replay.events.ReplayOpenEvent;

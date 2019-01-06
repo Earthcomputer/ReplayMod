@@ -1,6 +1,5 @@
 package com.replaymod.replay.gui.overlay;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replaystudio.data.Marker;
 import com.replaymod.replaystudio.util.Location;

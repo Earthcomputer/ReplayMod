@@ -1,6 +1,5 @@
 package com.replaymod.extras.youtube;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.extras.Extra;
 import com.replaymod.render.gui.GuiRenderingDone;
 import de.johni0702.minecraft.gui.container.GuiScreen;

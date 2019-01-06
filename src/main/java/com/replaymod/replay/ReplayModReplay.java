@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.ModCompat;
 import com.replaymod.replay.camera.CameraController;
 import com.replaymod.replay.camera.CameraControllerRegistry;

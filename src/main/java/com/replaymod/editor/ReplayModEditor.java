@@ -1,6 +1,5 @@
 package com.replaymod.editor;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.editor.handler.GuiHandler;
 import com.replaymod.online.Setting;
 import net.minecraftforge.fml.common.Mod;

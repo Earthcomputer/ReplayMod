@@ -2,7 +2,6 @@ package com.replaymod.extras.playeroverview;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.extras.Extra;
 import com.replaymod.replay.ReplayModReplay;

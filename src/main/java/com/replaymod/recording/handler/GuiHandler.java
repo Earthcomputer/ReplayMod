@@ -1,6 +1,5 @@
 package com.replaymod.recording.handler;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.SettingsRegistry;
 import com.replaymod.recording.Setting;
 import de.johni0702.minecraft.gui.container.GuiScreen;

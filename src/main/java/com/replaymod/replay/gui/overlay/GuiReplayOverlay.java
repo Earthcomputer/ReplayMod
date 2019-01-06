@@ -1,6 +1,5 @@
 package com.replaymod.replay.gui.overlay;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replay.ReplaySender;
 import de.johni0702.minecraft.gui.GuiRenderer;

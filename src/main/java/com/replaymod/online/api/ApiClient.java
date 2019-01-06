@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.exceptions.AuthenticationException;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.online.AuthenticationHash;
 import com.replaymod.online.api.replay.ReplayModApiMethods;
 import com.replaymod.online.api.replay.SearchQuery;

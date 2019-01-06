@@ -1,84 +1,50 @@
-package com.replaymod.core;
+package com.replaymod;
 
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.ListenableFutureTask;
+import com.mumfrey.liteloader.LiteMod;
+import com.mumfrey.liteloader.Tickable;
+import com.replaymod.core.KeyBindingRegistry;
+import com.replaymod.core.Setting;
+import com.replaymod.core.SettingsRegistry;
+import com.replaymod.core.ducks.IMinecraft;
 import com.replaymod.core.gui.GuiReplaySettings;
 import com.replaymod.core.gui.RestoreReplayGui;
-import com.replaymod.core.handler.MainMenuHandler;
 import com.replaymod.core.utils.OpenGLUtils;
 import com.replaymod.replaystudio.util.I18n;
 import de.johni0702.minecraft.gui.container.GuiScreen;
-import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.EventBus;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-@Mod(modid = ReplayMod.MOD_ID,
-        useMetadata = true,
-        version = "@MOD_VERSION@",
-        acceptedMinecraftVersions = "@MC_VERSION@",
-        acceptableRemoteVersions = "*",
-        clientSideOnly = true,
-        updateJSON = "https://raw.githubusercontent.com/ReplayMod/ReplayMod/master/versions.json",
-        guiFactory = "com.replaymod.core.gui.GuiFactory")
-public class ReplayMod {
-
-    public static ModContainer getContainer() {
-        return Loader.instance().getIndexedModList().get(MOD_ID);
-    }
-
-    @Getter(lazy = true)
-    private static final String minecraftVersion = parseMinecraftVersion();
-    private static String parseMinecraftVersion() {
-        CrashReport crashReport = new CrashReport("", new Throwable());
-        @SuppressWarnings("unchecked")
-        List<CrashReportCategory.Entry> list = crashReport.getCategory().children;
-        for (CrashReportCategory.Entry entry : list) {
-            if ("Minecraft Version".equals(entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-        return "Unknown";
-    }
-
-    public static final String MOD_ID = "replaymod";
-
-    public static final ResourceLocation TEXTURE = new ResourceLocation("replaymod", "replay_gui.png");
-    public static final int TEXTURE_SIZE = 256;
+public class LiteModReplayMod implements LiteMod, Tickable {
 
     private static final Minecraft mc = Minecraft.getMinecraft();
-
-    @Deprecated
-    public static Configuration config;
+    private static final IMinecraft imc = (IMinecraft) Minecraft.getMinecraft();
 
     private final KeyBindingRegistry keyBindingRegistry = new KeyBindingRegistry();
     private final SettingsRegistry settingsRegistry = new SettingsRegistry();
 
-    // The instance of your mod that Forge uses.
-    @Instance(MOD_ID)
-    public static ReplayMod instance;
+    public static final ResourceLocation TEXTURE = new ResourceLocation("replaymod", "replay_gui.png");
+    public static final int TEXTURE_SIZE = 256;
+
+    public static LiteModReplayMod instance;
+
+    /*
+    @Deprecated
+    public static Configuration config;
+    */
+
+    public LiteModReplayMod() {
+        instance = this;
+    }
 
     public KeyBindingRegistry getKeyBindingRegistry() {
         return keyBindingRegistry;
@@ -95,40 +61,55 @@ public class ReplayMod {
         return folder;
     }
 
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
+    @Override
+    public String getVersion() {
+        return "@MOD_VERSION@";
+    }
+
+    @Override
+    public void init(File configPath) {
         // Initialize the static OpenGL info field from the minecraft main thread
         // Unfortunately lwjgl uses static methods so we have to make use of magic init calls as well
         OpenGLUtils.init();
 
         I18n.setI18n(net.minecraft.client.resources.I18n::format);
 
+        // TODO: configuration
+        /*
         config = new Configuration(event.getSuggestedConfigurationFile());
         config.load();
         settingsRegistry.setConfiguration(config);
+        */
+
+        getSettingsRegistry().register(Setting.class);
     }
 
-    @EventHandler
-    public void init(FMLInitializationEvent event) {
-        getSettingsRegistry().register(Setting.class);
+    @Override
+    public void upgradeSettings(String version, File configPath, File oldConfigPath) {
+    }
 
-        new MainMenuHandler().register();
+    @Override
+    public String getName() {
+        return "replaymod";
+    }
 
-        MinecraftForge.EVENT_BUS.register(keyBindingRegistry);
-
+    public void postInit() {
         getKeyBindingRegistry().registerKeyBinding("replaymod.input.settings", 0, () -> {
             new GuiReplaySettings(null, settingsRegistry).display();
         });
-    }
 
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent event) throws IOException {
         settingsRegistry.save(); // Save default values to disk
 
-        if(!FMLClientHandler.instance().hasOptifine())
-            GameSettings.Options.RENDER_DISTANCE.setValueMax(64f);
+        boolean hasOptifine;
+        try {
+            Class.forName("optifine.Utils");
+            hasOptifine = true;
+        } catch (ClassNotFoundException e) {
+            hasOptifine = false;
+        }
 
-        testIfMoeshAndExitMinecraft();
+        if(!hasOptifine)
+            GameSettings.Options.RENDER_DISTANCE.setValueMax(64f);
 
         runLater(() -> {
             // Cleanup deleted corrupted replays
@@ -170,23 +151,15 @@ public class ReplayMod {
      * processed, otherwise a livelock may occur.
      */
     private boolean inRunLater = false;
+    private List<Runnable> toRunLater = new ArrayList<>();
 
     public void runLater(Runnable runnable) {
         if (mc.isCallingFromMinecraftThread() && inRunLater) {
-            EventBus bus = MinecraftForge.EVENT_BUS;
-            bus.register(new Object() {
-                @SubscribeEvent
-                public void onRenderTick(TickEvent.RenderTickEvent event) {
-                    if (event.phase == TickEvent.Phase.START) {
-                        runLater(runnable);
-                        bus.unregister(this);
-                    }
-                }
-            });
+            toRunLater.add(runnable);
             return;
         }
-        synchronized (mc.scheduledTasks) {
-            mc.scheduledTasks.add(ListenableFutureTask.create(() -> {
+        synchronized (imc.getScheduledTasks()) {
+            imc.getScheduledTasks().add(ListenableFutureTask.create(() -> {
                 inRunLater = true;
                 try {
                     runnable.run();
@@ -197,18 +170,17 @@ public class ReplayMod {
         }
     }
 
-    public String getVersion() {
-        return getContainer().getVersion();
-    }
-
-    private void testIfMoeshAndExitMinecraft() {
-        if("currentPlayer".equals("Moesh")) {
-            System.exit(-1);
+    @Override
+    public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
+        if (clock) {
+            keyBindingRegistry.onKeyInput();
+        } else {
+            while (!toRunLater.isEmpty()) {
+                Runnable task = toRunLater.remove(0);
+                runLater(task);
+            }
+            keyBindingRegistry.onTick();
         }
-    }
-
-    public Minecraft getMinecraft() {
-        return mc;
     }
 
     public void printInfoToChat(String message, Object... args) {
@@ -233,5 +205,13 @@ public class ReplayMod {
             // The ingame GUI is initialized at startup, therefore this is possible before the client is connected
             mc.ingameGUI.getChatGUI().printChatMessage(text);
         }
+    }
+
+    public Minecraft getMinecraft() {
+        return mc;
+    }
+
+    public IMinecraft getIMinecraft() {
+        return imc;
     }
 }

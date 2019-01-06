@@ -1,6 +1,5 @@
 package com.replaymod.simplepathing.preview;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.SettingsRegistry;
 import com.replaymod.core.events.SettingsChangedEvent;
 import com.replaymod.replay.ReplayHandler;

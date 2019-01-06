@@ -1,6 +1,5 @@
 package com.replaymod.extras.advancedscreenshots;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.render.RenderSettings;
 import com.replaymod.render.gui.GuiRenderSettings;
 import com.replaymod.replay.ReplayModReplay;

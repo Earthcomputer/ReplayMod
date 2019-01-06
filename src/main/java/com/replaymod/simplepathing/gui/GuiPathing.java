@@ -5,7 +5,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.pathing.gui.GuiKeyframeRepository;
 import com.replaymod.pathing.player.RealtimeTimelinePlayer;

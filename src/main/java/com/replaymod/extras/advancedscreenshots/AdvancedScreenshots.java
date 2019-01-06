@@ -1,6 +1,5 @@
 package com.replaymod.extras.advancedscreenshots;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.extras.Extra;
 import com.replaymod.replay.events.ReplayDispatchKeypressesEvent;
 import net.minecraft.client.Minecraft;

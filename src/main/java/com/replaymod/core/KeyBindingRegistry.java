@@ -2,14 +2,11 @@ package com.replaymod.core;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.mumfrey.liteloader.core.LiteLoader;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.util.ReportedException;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Collection;
@@ -36,7 +33,7 @@ public class KeyBindingRegistry {
         if (keyBinding == null) {
             keyBinding = new KeyBinding(name, keyCode, "replaymod.title");
             keyBindings.put(name, keyBinding);
-            ClientRegistry.registerKeyBinding(keyBinding);
+            LiteLoader.getInput().registerKeyBinding(keyBinding);
         }
         return keyBinding;
     }
@@ -49,15 +46,12 @@ public class KeyBindingRegistry {
         return Collections.unmodifiableMap(keyBindings);
     }
 
-    @SubscribeEvent
-    public void onKeyInput(InputEvent.KeyInputEvent event) {
+    public void onKeyInput() {
         handleKeyBindings();
         handleRaw();
     }
 
-    @SubscribeEvent
-    public void onTick(TickEvent.RenderTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
+    public void onTick() {
         handleRepeatedKeyBindings();
     }
 

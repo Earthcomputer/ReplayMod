@@ -4,7 +4,6 @@ import com.google.common.io.Files;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.gson.JsonObject;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.replaystudio.PacketData;
 import com.replaymod.replaystudio.Studio;

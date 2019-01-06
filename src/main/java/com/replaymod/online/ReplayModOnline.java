@@ -1,6 +1,5 @@
 package com.replaymod.online;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.online.api.ApiClient;
 import com.replaymod.online.gui.GuiLoginPrompt;
 import com.replaymod.online.gui.GuiReplayDownloading;

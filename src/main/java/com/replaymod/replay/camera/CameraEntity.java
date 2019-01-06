@@ -1,6 +1,5 @@
 package com.replaymod.replay.camera;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.events.SettingsChangedEvent;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.replay.ReplayModReplay;

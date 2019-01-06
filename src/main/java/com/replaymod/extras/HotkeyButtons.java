@@ -1,7 +1,6 @@
 package com.replaymod.extras;
 
 import com.replaymod.core.KeyBindingRegistry;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.replay.events.ReplayOpenEvent;
 import com.replaymod.replay.gui.overlay.GuiReplayOverlay;
 import de.johni0702.minecraft.gui.GuiRenderer;

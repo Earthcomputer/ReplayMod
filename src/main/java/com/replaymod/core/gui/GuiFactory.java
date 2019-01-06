@@ -1,11 +1,11 @@
 package com.replaymod.core.gui;
-
-import com.replaymod.core.ReplayMod;
+/*
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.client.IModGuiFactory;
 
 import java.util.Set;
+
 
 @SuppressWarnings("unused")
 public class GuiFactory implements IModGuiFactory {
@@ -29,3 +29,4 @@ public class GuiFactory implements IModGuiFactory {
         return null;
     }
 }
+*/

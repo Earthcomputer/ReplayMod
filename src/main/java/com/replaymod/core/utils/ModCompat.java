@@ -1,5 +1,5 @@
 package com.replaymod.core.utils;
-
+/*
 import com.replaymod.replaystudio.data.ModInfo;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
@@ -59,3 +59,4 @@ public class ModCompat {
         }
     }
 }
+*/

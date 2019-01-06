@@ -1,6 +1,5 @@
 package com.replaymod.simplepathing.gui;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.pathing.properties.CameraProperties;
 import com.replaymod.pathing.properties.SpectatorProperty;
 import com.replaymod.pathing.properties.TimestampProperty;

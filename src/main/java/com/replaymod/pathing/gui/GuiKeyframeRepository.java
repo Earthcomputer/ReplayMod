@@ -3,7 +3,6 @@ package com.replaymod.pathing.gui;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.replay.ReplayModReplay;
 import com.replaymod.replaystudio.pathing.PathingRegistry;

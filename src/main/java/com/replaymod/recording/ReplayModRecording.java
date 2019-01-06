@@ -1,6 +1,5 @@
 package com.replaymod.recording;
 
-import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.Restrictions;
 import com.replaymod.recording.handler.ConnectionEventHandler;
 import com.replaymod.recording.handler.GuiHandler;
