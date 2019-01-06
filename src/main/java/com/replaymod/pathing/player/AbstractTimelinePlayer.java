@@ -6,14 +6,16 @@ import com.google.common.collect.Ordering;
 import com.google.common.primitives.Longs;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import com.replaymod.LiteModReplayMod;
+import com.replaymod.core.ducks.IMinecraft;
+import com.replaymod.core.ducks.ITimer;
 import com.replaymod.core.utils.WrappedTimer;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replaystudio.pathing.path.Keyframe;
 import com.replaymod.replaystudio.pathing.path.Path;
 import com.replaymod.replaystudio.pathing.path.Timeline;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.util.Timer;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -21,7 +23,7 @@ import java.util.Iterator;
 /**
  * Plays a timeline.
  */
-public abstract class AbstractTimelinePlayer {
+public abstract class AbstractTimelinePlayer implements Runnable {
     private final Minecraft mc = Minecraft.getMinecraft();
     private final ReplayHandler replayHandler;
     private Timeline timeline;
@@ -65,12 +67,13 @@ public abstract class AbstractTimelinePlayer {
             }.max(iter).getTime();
         }
 
+        LiteModReplayMod.instance.addReplayTimerListener(this);
         replayHandler.getReplaySender().setSyncModeAndWait();
-        MinecraftForge.EVENT_BUS.register(this);
         lastTime = 0;
-        mc.timer = new ReplayTimer(mc.timer);
-        mc.timer.tickLength = WrappedTimer.DEFAULT_MS_PER_TICK;
-        mc.timer.renderPartialTicks = mc.timer.elapsedTicks = 0;
+        IMinecraft imc = (IMinecraft) mc;
+        imc.setTimer(new ReplayTimer(imc.getTimer()));
+        ((ITimer) imc.getTimer()).setTickLength(WrappedTimer.DEFAULT_MS_PER_TICK);
+        imc.getTimer().renderPartialTicks = imc.getTimer().elapsedTicks = 0;
         return future = settableFuture = SettableFuture.create();
     }
 
@@ -82,13 +85,14 @@ public abstract class AbstractTimelinePlayer {
         return future != null && !future.isDone();
     }
 
-    @SubscribeEvent
-    public void onTick(ReplayTimer.UpdatedEvent event) {
+    @Override
+    public void run() {
         if (future.isDone()) {
-            mc.timer = ((ReplayTimer) mc.timer).getWrapped();
+            IMinecraft imc = (IMinecraft) mc;
+            imc.setTimer(((ReplayTimer) imc.getTimer()).getWrapped());
             replayHandler.getReplaySender().setReplaySpeed(0);
             replayHandler.getReplaySender().setAsyncMode(true);
-            MinecraftForge.EVENT_BUS.unregister(this);
+            LiteModReplayMod.instance.removeReplayTimerListener(this);
             return;
         }
         long time = getTimePassed();
@@ -108,9 +112,10 @@ public abstract class AbstractTimelinePlayer {
         float timeInTicks = replayTime / 50f;
         float previousTimeInTicks = lastTime / 50f;
         float passedTicks = timeInTicks - previousTimeInTicks;
-        mc.timer.renderPartialTicks += passedTicks;
-        mc.timer.elapsedTicks = (int) mc.timer.renderPartialTicks;
-        mc.timer.renderPartialTicks -= mc.timer.elapsedTicks;
+        Timer timer = ((IMinecraft) mc).getTimer();
+        timer.renderPartialTicks += passedTicks;
+        timer.elapsedTicks = (int) timer.renderPartialTicks;
+        timer.renderPartialTicks -= timer.elapsedTicks;
 
         lastTime = replayTime;
 

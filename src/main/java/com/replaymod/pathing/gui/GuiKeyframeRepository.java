@@ -3,6 +3,7 @@ package com.replaymod.pathing.gui;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.replay.ReplayModReplay;
 import com.replaymod.replaystudio.pathing.PathingRegistry;
@@ -252,7 +253,7 @@ public class GuiKeyframeRepository extends GuiScreen implements Closeable {
             replayFile.writeTimelines(registry, timelines);
         } catch (IOException e) {
             e.printStackTrace();
-            ReplayMod.instance.printWarningToChat("Error saving timelines: " + e.getMessage());
+            LiteModReplayMod.instance.printWarningToChat("Error saving timelines: " + e.getMessage());
         }
     }
 

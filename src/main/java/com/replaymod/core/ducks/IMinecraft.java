@@ -13,6 +13,8 @@ public interface IMinecraft {
 
     List<IResourcePack> getDefaultResourcePacks();
 
+    void setTimer(Timer timer);
+
     Timer getTimer();
 
     void doResize(int width, int height);

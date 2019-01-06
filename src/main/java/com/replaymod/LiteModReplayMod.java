@@ -273,6 +273,22 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
         OnlineGuiHandler.onMainMenuActionPerformed(gui, button);
     }
 
+    private List<Runnable> replayTimerListeners = new ArrayList<>();
+
+    public void addReplayTimerListener(Runnable listener) {
+        replayTimerListeners.add(listener);
+    }
+
+    public void removeReplayTimerListener(Runnable listener) {
+        replayTimerListeners.remove(listener);
+    }
+
+    public void onReplayTimerUpdated() {
+        for (int i = replayTimerListeners.size() - 1; i >= 0; i--) {
+            replayTimerListeners.get(i).run();
+        }
+    }
+
     public Minecraft getMinecraft() {
         return mc;
     }
