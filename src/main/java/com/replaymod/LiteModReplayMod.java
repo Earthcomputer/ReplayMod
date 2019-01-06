@@ -11,11 +11,15 @@ import com.replaymod.core.ducks.IMinecraft;
 import com.replaymod.core.gui.GuiReplaySettings;
 import com.replaymod.core.gui.RestoreReplayGui;
 import com.replaymod.core.utils.OpenGLUtils;
+import com.replaymod.editor.ReplayModEditor;
+import com.replaymod.editor.handler.EditorGuiHandler;
 import com.replaymod.extras.ReplayModExtras;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replaystudio.util.I18n;
 import de.johni0702.minecraft.gui.container.GuiScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
@@ -47,6 +51,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
     public LiteModReplayMod() {
         instance = this;
         ReplayModExtras.instance = new ReplayModExtras();
+        ReplayModEditor.instance = new ReplayModEditor();
     }
 
     public KeyBindingRegistry getKeyBindingRegistry() {
@@ -246,6 +251,14 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderLi
 
     public boolean onDispatchKeyPresses() {
         return ReplayModExtras.instance.onDispatchKeyPresses();
+    }
+
+    public void injectIntoMainMenu(GuiMainMenu gui) {
+        EditorGuiHandler.injectIntoMainMenu(gui);
+    }
+
+    public void onMainMenuActionPerformed(GuiMainMenu gui, GuiButton button) {
+        EditorGuiHandler.onMainMenuActionPerformed(gui, button);
     }
 
     public Minecraft getMinecraft() {

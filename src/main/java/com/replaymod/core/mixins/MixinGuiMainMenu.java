@@ -1,5 +1,6 @@
 package com.replaymod.core.mixins;
 
+import com.replaymod.LiteModReplayMod;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
@@ -22,6 +23,12 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
             // and then move back down by 10 to compensate for the space to the exit button that was already there
             button.y -= 2 * 24 - 10;
         }
+        LiteModReplayMod.instance.injectIntoMainMenu((GuiMainMenu) (Object) this);
+    }
+
+    @Inject(method = "actionPerformed", at = @At("HEAD"))
+    public void onActionPerformed(GuiButton button, CallbackInfo ci) {
+        LiteModReplayMod.instance.onMainMenuActionPerformed((GuiMainMenu) (Object) this, button);
     }
 
 }

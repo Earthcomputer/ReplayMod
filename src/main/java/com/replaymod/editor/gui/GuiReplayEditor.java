@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.gson.JsonObject;
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.replaystudio.PacketData;
 import com.replaymod.replaystudio.Studio;
@@ -48,7 +49,7 @@ import java.util.function.Supplier;
 import static com.replaymod.editor.ReplayModEditor.LOGGER;
 
 public class GuiReplayEditor extends GuiScreen {
-    private final ReplayMod mod;
+    private final LiteModReplayMod mod;
 
     private volatile ProcessingStage processingStage;
     private volatile double progress;
@@ -69,7 +70,7 @@ public class GuiReplayEditor extends GuiScreen {
     public final GuiPanel buttonPanel = new GuiPanel(this).setLayout(new HorizontalLayout().setSpacing(5))
             .addElements(null, saveButton, backButton);
 
-    public GuiReplayEditor(GuiScreen parent, ReplayMod mod) {
+    public GuiReplayEditor(GuiScreen parent, LiteModReplayMod mod) {
         this.mod = mod;
         backButton.onClick(parent::display);
 
@@ -289,7 +290,7 @@ public class GuiReplayEditor extends GuiScreen {
         this.progress = progress;
     }
 
-    public ReplayMod getMod() {
+    public LiteModReplayMod getMod() {
         return mod;
     }
 

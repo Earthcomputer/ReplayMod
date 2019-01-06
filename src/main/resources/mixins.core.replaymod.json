@@ -6,7 +6,8 @@
   "client": [
     "MixinGuiMainMenu",
     "MixinMinecraft",
-    "MixinTimer"
+    "MixinTimer",
+    "MixinGuiScreen"
   ],
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.6.11",
