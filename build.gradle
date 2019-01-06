@@ -22,7 +22,7 @@ buildscript {
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle.liteloader'
 apply plugin: 'org.spongepowered.mixin'
 
 sourceCompatibility = 1.8
@@ -33,14 +33,38 @@ group= "com.replaymod"
 archivesBaseName = "replaymod"
 
 minecraft {
-    coreMod = 'com.replaymod.core.LoadingPlugin'
-    version = '1.12-14.21.1.2387'
-    runDir = "eclipse"
+    //coreMod = 'com.replaymod.core.LoadingPlugin'
+    version = '1.12'
+    runDir = "run"
     mappings = "snapshot_20170615"
+    makeObfSourceJar = false
     replace '@MOD_VERSION@', project.version
     // Includes intentional whitespace to stop Forge from declaring the mod to be compatible with
     // a newer srg-compatible MC version (that may be using a different protocol version)
     replace '@MC_VERSION@', "[ ${project.minecraft.version} ]"
+}
+
+litemod {
+    json {
+        name = 'replaymod'
+        displayName = 'Replay Mod'
+        description = 'A Mod which allows you to record, replay and share your Minecraft experience.'
+        mcversion = project.minecraft.version
+        version = project.version
+        author = 'CrushedPixel, johni0702, Earthcomputer'
+        mixinConfigs = [
+                'mixins.compat.mapwriter.replaymod.json',
+                'mixins.compat.shaders.replaymod.json',
+                'mixins.extras.playeroverview.replaymod.json',
+                'mixins.recording.replaymod.json',
+                'mixins.render.replaymod.json',
+                'mixins.replay.replaymod.json'
+        ]
+    }
+}
+
+mixin {
+    defaultObfuscationEnv notch
 }
 
 repositories {
@@ -108,12 +132,16 @@ jar {
         }
     }
 
+    from litemod.outputs
+
+    /*
     manifest {
          attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                  'TweakOrder': '0',
                  'FMLCorePluginContainsFMLMod': 'true',
                  'FMLAT': 'replaymod_at.cfg'
 	}
+	*/
 }
 
 def gitDescribe() {
@@ -129,6 +157,7 @@ def gitDescribe() {
     }
 }
 
+/*
 processResources
 {
     // this will ensure that this task is redone when the versions change.
@@ -148,6 +177,7 @@ processResources
         exclude 'mcmod.info'
     }
 }
+*/
 
 sourceSets {
     main {

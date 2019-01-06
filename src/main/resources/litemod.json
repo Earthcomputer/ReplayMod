@@ -1,0 +1,12 @@
+{
+  "name": "replaymod",
+  "mcversion": "1.12",
+  "mixinconfigs": [
+    "mixins.compat.mapwriter.replaymod.json",
+    "mixins.compat.shaders.replaymod.json",
+    "mixins.extra.playeroverview.replaymod.json",
+    "mixins.recording.replaymod.json",
+    "mixins.render.replaymod.json",
+    "mixins.replay.replaymod.json"
+  ]
+}
