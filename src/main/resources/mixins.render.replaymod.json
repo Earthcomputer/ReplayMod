@@ -9,7 +9,14 @@
     "MixinParticleManager",
     "MixinRender",
     "MixinRenderGlobal",
-    "MixinRenderManager"
+    "MixinRenderManager",
+    "MixinBooleanState",
+    "MixinFogState",
+    "MixinGlStateManager",
+    "MixinTextureState",
+    "MixinRenderDispatcher",
+    "MixinParticle",
+    "MixinGameSettings"
   ],
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.6.11",

@@ -19,6 +19,7 @@ import com.replaymod.extras.ReplayModExtras;
 import com.replaymod.online.ReplayModOnline;
 import com.replaymod.online.handler.OnlineGuiHandler;
 import com.replaymod.recording.ReplayModRecording;
+import com.replaymod.render.ReplayModRender;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replaystudio.util.I18n;
 import de.johni0702.minecraft.gui.container.GuiScreen;
@@ -64,6 +65,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         ReplayModEditor.instance = new ReplayModEditor();
         ReplayModOnline.instance = new ReplayModOnline();
         ReplayModRecording.instance = new ReplayModRecording();
+        ReplayModRender.instance = new ReplayModRender();
     }
 
     public KeyBindingRegistry getKeyBindingRegistry() {
@@ -108,6 +110,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         ReplayModEditor.instance.init();
         ReplayModOnline.instance.init();
         ReplayModRecording.instance.init();
+        ReplayModRender.instance.init();
     }
 
     @Override
@@ -266,6 +269,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
     public void preReplayClosed(ReplayHandler handler) {
         ReplayModExtras.instance.preReplayClosed(handler);
         ReplayModOnline.instance.onReplayClosed(handler);
+        ReplayModRender.instance.onReplayClose(handler);
     }
 
     public void postReplayClosed(ReplayHandler handler) {

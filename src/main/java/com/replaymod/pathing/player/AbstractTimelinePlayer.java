@@ -23,7 +23,7 @@ import java.util.Iterator;
 /**
  * Plays a timeline.
  */
-public abstract class AbstractTimelinePlayer implements Runnable {
+public abstract class AbstractTimelinePlayer {
     private final Minecraft mc = Minecraft.getMinecraft();
     private final ReplayHandler replayHandler;
     private Timeline timeline;
@@ -67,7 +67,7 @@ public abstract class AbstractTimelinePlayer implements Runnable {
             }.max(iter).getTime();
         }
 
-        LiteModReplayMod.instance.addReplayTimerListener(this);
+        LiteModReplayMod.instance.addReplayTimerListener(this::onTick);
         replayHandler.getReplaySender().setSyncModeAndWait();
         lastTime = 0;
         IMinecraft imc = (IMinecraft) mc;
@@ -85,14 +85,13 @@ public abstract class AbstractTimelinePlayer implements Runnable {
         return future != null && !future.isDone();
     }
 
-    @Override
-    public void run() {
+    public void onTick() {
         if (future.isDone()) {
             IMinecraft imc = (IMinecraft) mc;
             imc.setTimer(((ReplayTimer) imc.getTimer()).getWrapped());
             replayHandler.getReplaySender().setReplaySpeed(0);
             replayHandler.getReplaySender().setAsyncMode(true);
-            LiteModReplayMod.instance.removeReplayTimerListener(this);
+            LiteModReplayMod.instance.removeReplayTimerListener(this::onTick);
             return;
         }
         long time = getTimePassed();

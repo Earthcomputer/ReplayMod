@@ -1,5 +1,5 @@
 package com.replaymod.render.events;
-
+/*
 import com.replaymod.render.rendering.VideoRenderer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,3 +22,4 @@ public abstract class ReplayRenderEvent extends Event {
         }
     }
 }
+*/

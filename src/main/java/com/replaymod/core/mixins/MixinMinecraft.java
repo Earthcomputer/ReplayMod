@@ -30,6 +30,8 @@ public abstract class MixinMinecraft implements IMinecraft {
 
     @Shadow protected abstract void resize(int width, int height);
 
+    @Shadow private boolean hasCrashed;
+
     @Override
     public Queue<FutureTask<?>> getScheduledTasks() {
         return scheduledTasks;
@@ -83,5 +85,10 @@ public abstract class MixinMinecraft implements IMinecraft {
         if (world == null) {
             LiteModReplayMod.instance.onUnloadWorld();
         }
+    }
+
+    @Override
+    public boolean hasCrashed() {
+        return hasCrashed;
     }
 }

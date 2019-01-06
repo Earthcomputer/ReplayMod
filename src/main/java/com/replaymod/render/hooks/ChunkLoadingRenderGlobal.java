@@ -1,5 +1,7 @@
 package com.replaymod.render.hooks;
 
+import com.replaymod.render.ducks.IRenderDispatcher;
+import com.replaymod.render.ducks.IRenderGlobal;
 import com.replaymod.render.utils.JailingQueue;
 import net.minecraft.client.renderer.RegionRenderCacheBuilder;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -23,13 +25,13 @@ public class ChunkLoadingRenderGlobal {
     @SuppressWarnings("unchecked")
     public ChunkLoadingRenderGlobal(RenderGlobal renderGlobal) {
         this.hooked = renderGlobal;
-        this.renderDispatcher = renderGlobal.renderDispatcher;
+        this.renderDispatcher = ((IRenderGlobal) renderGlobal).getRenderDispatcher();
         this.renderWorker = new CustomChunkRenderWorker(renderDispatcher, new RegionRenderCacheBuilder());
 
-        int workerThreads = renderDispatcher.listThreadedWorkers.size();
-        PriorityBlockingQueue<ChunkCompileTaskGenerator> queueChunkUpdates = renderDispatcher.queueChunkUpdates;
+        int workerThreads = ((IRenderDispatcher) renderDispatcher).getListThreadedWorkers().size();
+        PriorityBlockingQueue<ChunkCompileTaskGenerator> queueChunkUpdates = ((IRenderDispatcher) renderDispatcher).getQueueChunkUpdates();
         workerJailingQueue = new JailingQueue<>(queueChunkUpdates);
-        renderDispatcher.queueChunkUpdates = workerJailingQueue;
+        ((IRenderDispatcher) renderDispatcher).setQueueChunkUpdates(workerJailingQueue);
         ChunkCompileTaskGenerator element = new ChunkCompileTaskGenerator(null, null, 0);
         element.finish();
         for (int i = 0; i < workerThreads; i++) {
@@ -41,7 +43,7 @@ public class ChunkLoadingRenderGlobal {
         while (renderDispatcher.runChunkUploads(0)) {}
 
         workerJailingQueue.jail(workerThreads);
-        renderDispatcher.queueChunkUpdates = queueChunkUpdates;
+        ((IRenderDispatcher) renderDispatcher).setQueueChunkUpdates(queueChunkUpdates);
 
         try {
             Field hookField = RenderGlobal.class.getField("replayModRender_hook");
@@ -53,16 +55,16 @@ public class ChunkLoadingRenderGlobal {
 
     public void updateChunks() {
         while (renderDispatcher.runChunkUploads(0)) {
-            hooked.displayListEntitiesDirty = true;
+            ((IRenderGlobal) hooked).setDisplayListEntitiesDirty(true);
         }
 
-        while (!renderDispatcher.queueChunkUpdates.isEmpty()) {
+        while (!((IRenderDispatcher) renderDispatcher).getQueueChunkUpdates().isEmpty()) {
             try {
-                renderWorker.processTask(renderDispatcher.queueChunkUpdates.poll());
+                renderWorker.processTask(((IRenderDispatcher) renderDispatcher).getQueueChunkUpdates().poll());
             } catch (InterruptedException ignored) { }
         }
 
-        Iterator<RenderChunk> iterator = hooked.chunksToUpdate.iterator();
+        Iterator<RenderChunk> iterator = ((IRenderGlobal) hooked).getChunksToUpdate().iterator();
         while (iterator.hasNext()) {
             RenderChunk renderchunk = iterator.next();
 

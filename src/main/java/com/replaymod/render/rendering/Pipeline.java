@@ -1,5 +1,6 @@
 package com.replaymod.render.rendering;
 
+import com.replaymod.core.ducks.IMinecraft;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
@@ -50,7 +51,7 @@ public class Pipeline<R extends Frame, P extends Frame> implements Runnable {
 
         Minecraft mc = Minecraft.getMinecraft();
         while (!capturer.isDone() && !Thread.currentThread().isInterrupted()) {
-            if (Display.isCloseRequested() || mc.hasCrashed) {
+            if (Display.isCloseRequested() || ((IMinecraft) mc).hasCrashed()) {
                 Thread.currentThread().interrupt();
                 return;
             }

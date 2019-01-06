@@ -1,15 +1,12 @@
 package com.replaymod.render;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.render.utils.RenderJob;
-import com.replaymod.replay.events.ReplayCloseEvent;
+import com.replaymod.replay.ReplayHandler;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.util.ReportedException;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
@@ -17,42 +14,30 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod(modid = ReplayModRender.MOD_ID,
-        version = "@MOD_VERSION@",
-        acceptedMinecraftVersions = "@MC_VERSION@",
-        acceptableRemoteVersions = "*",
-        clientSideOnly = true,
-        useMetadata = true)
 public class ReplayModRender {
-    public static final String MOD_ID = "replaymod-render";
-
-    @Mod.Instance(MOD_ID)
     public static ReplayModRender instance;
 
-    private ReplayMod core;
+    private LiteModReplayMod core;
 
     public static Logger LOGGER;
 
-    private Configuration configuration;
+    // TODO: config
+    //private Configuration configuration;
     private final List<RenderJob> renderQueue = new ArrayList<>();
 
-    public ReplayMod getCore() {
+    public LiteModReplayMod getCore() {
         return core;
     }
 
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        LOGGER = event.getModLog();
-        core = ReplayMod.instance;
-        configuration = new Configuration(event.getSuggestedConfigurationFile());
-
-        MinecraftForge.EVENT_BUS.register(this);
+    public void init() {
+        LOGGER = LogManager.getLogger("replaymod-render");
+        core = LiteModReplayMod.instance;
+        //configuration = new Configuration(event.getSuggestedConfigurationFile());
 
         core.getSettingsRegistry().register(Setting.class);
     }
 
-    @SubscribeEvent
-    public void onReplayClose(ReplayCloseEvent.Post event) {
+    public void onReplayClose(ReplayHandler handler) {
         renderQueue.clear();
     }
 
@@ -67,9 +52,11 @@ public class ReplayModRender {
         return folder;
     }
 
+    /*
     public Configuration getConfiguration() {
         return configuration;
     }
+    */
 
     public List<RenderJob> getRenderQueue() {
         return renderQueue;

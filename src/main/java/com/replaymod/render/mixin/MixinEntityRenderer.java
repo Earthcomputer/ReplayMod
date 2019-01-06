@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = EntityRenderer.class)
-public abstract class MixinEntityRenderer implements EntityRendererHandler.IEntityRenderer, EntityRendererHandler.GluPerspective {
+public abstract class MixinEntityRenderer implements EntityRendererHandler.IEntityRenderer, com.replaymod.render.ducks.IEntityRenderer, EntityRendererHandler.GluPerspective {
     @Shadow
     public Minecraft mc;
 
@@ -117,6 +117,10 @@ public abstract class MixinEntityRenderer implements EntityRendererHandler.IEnti
 
     @Shadow
     public abstract void renderHand(float partialTicks, int renderPass);
+
+    @Shadow protected abstract void updateLightmap(float partialTicks);
+
+    @Shadow protected abstract void renderWorldPass(int pass, float partialTicks, long finishTimeNano);
 
     @Redirect(method = "renderWorldPass", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderGlobal;drawSelectionBox(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/RayTraceResult;IF)V"))
     private void replayModRender_drawSelectionBox(RenderGlobal instance, EntityPlayer player, RayTraceResult rtr, int alwaysZero, float partialTicks) {
@@ -230,5 +234,15 @@ public abstract class MixinEntityRenderer implements EntityRendererHandler.IEnti
             // Minecraft goes back a little so we have to revert that
             GlStateManager.translate(0.0F, 0.0F, 0.1F);
         }
+    }
+
+    @Override
+    public void doUpdateLightmap(float partialTicks) {
+        updateLightmap(partialTicks);
+    }
+
+    @Override
+    public void doRenderWorldPass(int pass, float partialTicks, long finishTimeNano) {
+        renderWorldPass(pass, partialTicks, finishTimeNano);
     }
 }

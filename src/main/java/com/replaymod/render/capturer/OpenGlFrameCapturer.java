@@ -1,5 +1,6 @@
 package com.replaymod.render.capturer;
 
+import com.replaymod.core.ducks.IMinecraft;
 import com.replaymod.render.frame.OpenGlFrame;
 import com.replaymod.render.rendering.Frame;
 import com.replaymod.render.rendering.FrameCapturer;
@@ -114,7 +115,7 @@ public abstract class OpenGlFrameCapturer<F extends Frame, D extends CaptureData
     }
 
     private void setWindowSize(int width, int height) {
-        mc.resize(width, height);
+        ((IMinecraft) mc).doResize(width, height);
     }
 
     @Override

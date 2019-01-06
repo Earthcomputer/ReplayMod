@@ -1,14 +1,16 @@
 package com.replaymod.render.rendering;
 
+import com.replaymod.core.ducks.IMinecraft;
+import com.replaymod.core.ducks.ITimer;
 import com.replaymod.core.utils.WrappedTimer;
 import com.replaymod.pathing.player.AbstractTimelinePlayer;
-import com.replaymod.pathing.player.ReplayTimer;
 import com.replaymod.pathing.properties.TimestampProperty;
 import com.replaymod.render.RenderSettings;
 import com.replaymod.render.ReplayModRender;
 import com.replaymod.render.VideoWriter;
 import com.replaymod.render.capturer.RenderInfo;
-import com.replaymod.render.events.ReplayRenderEvent;
+import com.replaymod.render.ducks.IGameSettings;
+import com.replaymod.render.ducks.IRenderGlobal;
 import com.replaymod.render.frame.RGBFrame;
 import com.replaymod.render.gui.GuiRenderingDone;
 import com.replaymod.render.gui.GuiVideoRenderer;
@@ -25,17 +27,13 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.Timer;
-import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.Dimension;
 import org.lwjgl.util.ReadableDimension;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
@@ -93,14 +91,16 @@ public class VideoRenderer implements RenderInfo {
      * @return {@code true} if rendering was successful, {@code false} if the user aborted rendering (or the window was closed)
      */
     public boolean renderVideo() throws Throwable {
-        MinecraftForge.EVENT_BUS.post(new ReplayRenderEvent.Pre(this));
+        // TODO: Forge compatibility
+        //MinecraftForge.EVENT_BUS.post(new ReplayRenderEvent.Pre(this));
 
         setup();
 
         // Because this might take some time to prepare we'll render the GUI at least once to not confuse the user
         drawGui();
 
-        Timer timer = mc.timer;
+        Timer timer = ((IMinecraft) mc).getTimer();
+        ITimer itimer = (ITimer) timer;
 
         // Play up to one second before starting to render
         // This is necessary in order to ensure that all entities have at least two position packets
@@ -115,7 +115,7 @@ public class VideoRenderer implements RenderInfo {
             if (videoStart > 1000) {
                 int replayTime = videoStart - 1000;
                 timer.renderPartialTicks = 0;
-                timer.tickLength = WrappedTimer.DEFAULT_MS_PER_TICK;
+                itimer.setTickLength(WrappedTimer.DEFAULT_MS_PER_TICK);
                 while (replayTime < videoStart) {
                     timer.elapsedTicks = 1;
                     replayTime += 50;
@@ -125,7 +125,7 @@ public class VideoRenderer implements RenderInfo {
             }
         }
 
-        mc.renderGlobal.renderEntitiesStartupCounter = 0;
+        ((IRenderGlobal) mc.renderGlobal).setRenderEntitiesStartupCounter(0);
 
         renderingPipeline.run();
 
@@ -139,7 +139,8 @@ public class VideoRenderer implements RenderInfo {
 
         finish();
 
-        MinecraftForge.EVENT_BUS.post(new ReplayRenderEvent.Post(this));
+        // TODO: Forge compatibility
+        //MinecraftForge.EVENT_BUS.post(new ReplayRenderEvent.Post(this));
 
         if (failureCause != null) {
             throw failureCause;
@@ -161,10 +162,11 @@ public class VideoRenderer implements RenderInfo {
             drawGui();
         }
 
+        IMinecraft imc = (IMinecraft) mc;
         // Updating the timer will cause the timeline player to update the game state
-        mc.timer.updateTimer();
+        imc.getTimer().updateTimer();
 
-        int elapsedTicks = mc.timer.elapsedTicks;
+        int elapsedTicks = imc.getTimer().elapsedTicks;
         while (elapsedTicks-- > 0) {
             tick();
         }
@@ -174,7 +176,7 @@ public class VideoRenderer implements RenderInfo {
         mc.displayHeight = displayHeightBefore;
 
         framesDone++;
-        return mc.timer.renderPartialTicks;
+        return imc.getTimer().renderPartialTicks;
     }
 
     @Override
@@ -203,9 +205,9 @@ public class VideoRenderer implements RenderInfo {
         for (SoundCategory category : SoundCategory.values()) {
             mutedSounds.put(category, 0f);
         }
-        originalSoundLevels = mc.gameSettings.soundLevels;
+        originalSoundLevels = new EnumMap<>(((IGameSettings) mc.gameSettings).getSoundLevels());
         mutedSounds.put(SoundCategory.MASTER, originalSoundLevels.get(SoundCategory.MASTER));
-        mc.gameSettings.soundLevels = mutedSounds;
+        ((IGameSettings) mc.gameSettings).setSoundLevels(mutedSounds);
 
         fps = settings.getFramesPerSecond();
 
@@ -237,7 +239,7 @@ public class VideoRenderer implements RenderInfo {
             timelinePlayerFuture.cancel(false);
         }
         // Tear down of the timeline player might only happen the next tick after it was cancelled
-        timelinePlayer.onTick(new ReplayTimer.UpdatedEvent());
+        timelinePlayer.onTick();
 
         if (!OpenGlHelper.isFramebufferEnabled()) {
             Display.setResizable(true);
@@ -246,7 +248,7 @@ public class VideoRenderer implements RenderInfo {
         if (mouseWasGrabbed) {
             mc.mouseHelper.grabMouseCursor();
         }
-        mc.gameSettings.soundLevels = originalSoundLevels;
+        ((IGameSettings) mc.gameSettings).setSoundLevels(originalSoundLevels);
         mc.displayGuiScreen(null);
         if (chunkLoadingRenderGlobal != null) {
             chunkLoadingRenderGlobal.uninstall();
@@ -263,13 +265,14 @@ public class VideoRenderer implements RenderInfo {
         }
 
         // Finally, resize the Minecraft framebuffer to the actual width/height of the window
-        mc.resize(displayWidth, displayHeight);
+        ((IMinecraft) mc).doResize(displayWidth, displayHeight);
     }
 
     private void tick() {
-        synchronized (mc.scheduledTasks) {
-            while (!mc.scheduledTasks.isEmpty()) {
-                ((FutureTask) mc.scheduledTasks.poll()).run();
+        Queue<FutureTask<?>> scheduledTasks = ((IMinecraft) mc).getScheduledTasks();
+        synchronized (scheduledTasks) {
+            while (!scheduledTasks.isEmpty()) {
+                ((FutureTask) scheduledTasks.poll()).run();
             }
         }
 

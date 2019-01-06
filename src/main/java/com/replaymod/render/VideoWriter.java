@@ -9,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.util.Util;
-import net.minecraftforge.fml.common.versioning.ComparableVersion;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -24,7 +23,6 @@ import java.io.OutputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -101,9 +99,23 @@ public class VideoWriter implements FrameConsumer<RGBFrame> {
                 String[] homebrewVersions = homebrewFolder.list();
                 if (homebrewVersions != null) {
                     Optional<File> latestOpt = Arrays.stream(homebrewVersions)
-                            .map(ComparableVersion::new) // Convert file name to comparable version
-                            .sorted(Comparator.reverseOrder()) // Sort for latest version
-                            .map(ComparableVersion::toString) // Convert back to file name
+                            .sorted((a, b) -> {
+                                String[] aarr = a.split("\\.");
+                                String[] barr = b.split("\\.");
+                                for (int i = 0; i < aarr.length && i < barr.length; i++) {
+                                    int ai, bi;
+                                    try {
+                                        ai = Integer.parseInt(aarr[i]);
+                                        bi = Integer.parseInt(barr[i]);
+                                    } catch (NumberFormatException e) {
+                                        return barr[i].compareTo(aarr[i]);
+                                    }
+                                    if (ai != bi) {
+                                        return Integer.compare(bi, ai);
+                                    }
+                                }
+                                return Integer.compare(barr.length, aarr.length);
+                            })
                             .map(v -> new File(new File(homebrewFolder, v), "bin/ffmpeg")) // Convert to binary files
                             .filter(File::exists) // Filter invalid installations (missing executable)
                             .findFirst(); // Take first one
