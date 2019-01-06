@@ -1,7 +1,9 @@
 package com.replaymod.extras;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.KeyBindingRegistry;
-import com.replaymod.replay.events.ReplayOpenEvent;
+import com.replaymod.extras.ducks.IKeyBinding;
+import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replay.gui.overlay.GuiReplayOverlay;
 import de.johni0702.minecraft.gui.GuiRenderer;
 import de.johni0702.minecraft.gui.RenderInfo;
@@ -16,8 +18,6 @@ import de.johni0702.minecraft.gui.layout.GridLayout;
 import de.johni0702.minecraft.gui.layout.HorizontalLayout;
 import de.johni0702.minecraft.gui.layout.LayoutData;
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Dimension;
 import org.lwjgl.util.ReadableDimension;
@@ -28,18 +28,16 @@ import java.util.Comparator;
 import java.util.Map;
 
 public class HotkeyButtons implements Extra {
-    private ReplayMod mod;
+    private LiteModReplayMod mod;
 
     @Override
-    public void register(ReplayMod mod) throws Exception {
+    public void register(LiteModReplayMod mod) throws Exception {
         this.mod = mod;
-
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @SubscribeEvent
-    public void postReplayOpen(ReplayOpenEvent.Post event) {
-        GuiReplayOverlay overlay = event.getReplayHandler().getOverlay();
+    @Override
+    public void postReplayOpened(ReplayHandler handler) {
+        GuiReplayOverlay overlay = handler.getOverlay();
         new Gui(mod, overlay);
     }
 
@@ -50,15 +48,10 @@ public class HotkeyButtons implements Extra {
 
         private boolean open;
 
-        public Gui(ReplayMod mod, GuiReplayOverlay overlay) {
+        public Gui(LiteModReplayMod mod, GuiReplayOverlay overlay) {
             toggleButton = new GuiTexturedButton(overlay).setSize(20, 20)
-                    .setTexture(ReplayMod.TEXTURE, ReplayMod.TEXTURE_SIZE).setTexturePosH(0, 0)
-                    .onClick(new Runnable() {
-                        @Override
-                        public void run() {
-                            open = !open;
-                        }
-                    });
+                    .setTexture(LiteModReplayMod.TEXTURE, LiteModReplayMod.TEXTURE_SIZE).setTexturePosH(0, 0)
+                    .onClick(() -> open = !open);
 
             panel = new GuiPanel(overlay) {
                 @Override
@@ -90,7 +83,7 @@ public class HotkeyButtons implements Extra {
                         super.draw(renderer, size, renderInfo);
                     }
                 }.onClick(() -> {
-                    keyBinding.pressTime++;
+                    ((IKeyBinding) keyBinding).setPressTime(((IKeyBinding) keyBinding).getPressTime() + 1);
                     keyBindingRegistry.handleKeyBindings();
                 });
                 panel.addElements(null, new GuiPanel().setSize(150, 20).setLayout(new HorizontalLayout().setSpacing(2))

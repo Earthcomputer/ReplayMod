@@ -1,5 +1,6 @@
 package com.replaymod.extras.advancedscreenshots;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.SettingsRegistry;
 import com.replaymod.extras.Setting;
 import com.replaymod.render.RenderSettings;
@@ -19,7 +20,7 @@ import java.net.URI;
 
 public class GuiUploadScreenshot extends AbstractGuiPopup<GuiUploadScreenshot> {
 
-    public final ReplayMod mod;
+    public final LiteModReplayMod mod;
 
     public final RenderSettings renderSettings;
 
@@ -55,7 +56,7 @@ public class GuiUploadScreenshot extends AbstractGuiPopup<GuiUploadScreenshot> {
             .with(neverOpenLabel, new HorizontalLayout.Data(0.5))
             .build();
 
-    public GuiUploadScreenshot(GuiContainer container, ReplayMod mod, RenderSettings renderSettings) {
+    public GuiUploadScreenshot(GuiContainer container, LiteModReplayMod mod, RenderSettings renderSettings) {
         super(container);
         this.mod = mod;
         this.renderSettings = renderSettings;

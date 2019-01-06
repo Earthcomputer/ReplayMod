@@ -59,7 +59,8 @@ litemod {
                 'mixins.recording.replaymod.json',
                 'mixins.render.replaymod.json',
                 'mixins.replay.replaymod.json',
-                'mixins.core.replaymod.json'
+                'mixins.core.replaymod.json',
+                "mixins.extras.replaymod.json"
         ]
     }
 }

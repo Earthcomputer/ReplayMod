@@ -1,5 +1,6 @@
 package com.replaymod.extras.urischeme;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.extras.Extra;
 import com.replaymod.online.ReplayModOnline;
 import de.johni0702.minecraft.gui.container.GuiScreen;
@@ -13,10 +14,10 @@ import java.net.Socket;
 public class UriSchemeExtra implements Extra {
     private ReplayModOnline module;
 
-    private ReplayMod mod;
+    private LiteModReplayMod mod;
 
     @Override
-    public void register(final ReplayMod mod) throws Exception {
+    public void register(final LiteModReplayMod mod) throws Exception {
         this.mod = mod;
         this.module = ReplayModOnline.instance;
 

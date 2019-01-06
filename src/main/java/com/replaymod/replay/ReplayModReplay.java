@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.utils.ModCompat;
 import com.replaymod.replay.camera.CameraController;
 import com.replaymod.replay.camera.CameraControllerRegistry;
@@ -43,7 +44,7 @@ public class ReplayModReplay {
     @Mod.Instance(MOD_ID)
     public static ReplayModReplay instance;
 
-    private ReplayMod core;
+    private LiteModReplayMod core;
 
     private final CameraControllerRegistry cameraControllerRegistry = new CameraControllerRegistry();
 
@@ -198,7 +199,7 @@ public class ReplayModReplay {
         replayHandler = null;
     }
 
-    public ReplayMod getCore() {
+    public LiteModReplayMod getCore() {
         return core;
     }
 

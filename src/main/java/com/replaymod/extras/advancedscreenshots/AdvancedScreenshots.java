@@ -1,27 +1,24 @@
 package com.replaymod.extras.advancedscreenshots;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.extras.Extra;
-import com.replaymod.replay.events.ReplayDispatchKeypressesEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiControls;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
 public class AdvancedScreenshots implements Extra {
 
-    private ReplayMod mod;
+    private LiteModReplayMod mod;
 
     private final Minecraft mc = Minecraft.getMinecraft();
 
     @Override
-    public void register(ReplayMod mod) throws Exception {
+    public void register(LiteModReplayMod mod) throws Exception {
         this.mod = mod;
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @SubscribeEvent
-    public void onDispatchKeypresses(ReplayDispatchKeypressesEvent.Pre event) {
+    @Override
+    public boolean onDispatchKeyPresses() {
         int keyCode = Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() : Keyboard.getEventKey();
 
         // all the conditions required to trigger a screenshot condensed in a single if statement
@@ -30,11 +27,12 @@ public class AdvancedScreenshots implements Extra {
                 && Keyboard.getEventKeyState()
                 && keyCode == mc.gameSettings.keyBindScreenshot.getKeyCode()) {
 
-            ReplayMod.instance.runLater(() -> {
+            LiteModReplayMod.instance.runLater(() -> {
                 new GuiCreateScreenshot(mod).display();
             });
 
-            event.setCanceled(true);
+            return false;
         }
+        return true;
     }
 }

@@ -2,8 +2,8 @@ package com.replaymod;
 
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.ListenableFutureTask;
-import com.mumfrey.liteloader.LiteMod;
-import com.mumfrey.liteloader.Tickable;
+import com.mumfrey.liteloader.*;
+import com.mumfrey.liteloader.core.LiteLoader;
 import com.replaymod.core.KeyBindingRegistry;
 import com.replaymod.core.Setting;
 import com.replaymod.core.SettingsRegistry;
@@ -11,6 +11,8 @@ import com.replaymod.core.ducks.IMinecraft;
 import com.replaymod.core.gui.GuiReplaySettings;
 import com.replaymod.core.gui.RestoreReplayGui;
 import com.replaymod.core.utils.OpenGLUtils;
+import com.replaymod.extras.ReplayModExtras;
+import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replaystudio.util.I18n;
 import de.johni0702.minecraft.gui.container.GuiScreen;
 import net.minecraft.client.Minecraft;
@@ -24,7 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LiteModReplayMod implements LiteMod, Tickable {
+public class LiteModReplayMod implements LiteMod, InitCompleteListener, RenderListener, GameLoopListener, Tickable {
 
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static final IMinecraft imc = (IMinecraft) Minecraft.getMinecraft();
@@ -44,6 +46,7 @@ public class LiteModReplayMod implements LiteMod, Tickable {
 
     public LiteModReplayMod() {
         instance = this;
+        ReplayModExtras.instance = new ReplayModExtras();
     }
 
     public KeyBindingRegistry getKeyBindingRegistry() {
@@ -82,6 +85,8 @@ public class LiteModReplayMod implements LiteMod, Tickable {
         */
 
         getSettingsRegistry().register(Setting.class);
+
+        ReplayModExtras.instance.init();
     }
 
     @Override
@@ -93,7 +98,8 @@ public class LiteModReplayMod implements LiteMod, Tickable {
         return "replaymod";
     }
 
-    public void postInit() {
+    @Override
+    public void onInitCompleted(Minecraft minecraft, LiteLoader liteLoader) {
         getKeyBindingRegistry().registerKeyBinding("replaymod.input.settings", 0, () -> {
             new GuiReplaySettings(null, settingsRegistry).display();
         });
@@ -171,16 +177,31 @@ public class LiteModReplayMod implements LiteMod, Tickable {
     }
 
     @Override
-    public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
-        if (clock) {
-            keyBindingRegistry.onKeyInput();
-        } else {
-            while (!toRunLater.isEmpty()) {
-                Runnable task = toRunLater.remove(0);
-                runLater(task);
-            }
-            keyBindingRegistry.onTick();
+    public void onRunGameLoop(Minecraft minecraft) {
+        keyBindingRegistry.onKeyInput();
+    }
+
+    @Override
+    public void onRender() {
+        while (!toRunLater.isEmpty()) {
+            Runnable task = toRunLater.remove(0);
+            runLater(task);
         }
+        keyBindingRegistry.onTick();
+        ReplayModExtras.instance.beginTick();
+    }
+
+    @Override
+    public void onRenderGui(net.minecraft.client.gui.GuiScreen currentScreen) {
+    }
+
+    @Override
+    public void onSetupCameraTransform() {
+    }
+
+    @Override
+    public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
+        ReplayModExtras.instance.endTick();
     }
 
     public void printInfoToChat(String message, Object... args) {
@@ -205,6 +226,26 @@ public class LiteModReplayMod implements LiteMod, Tickable {
             // The ingame GUI is initialized at startup, therefore this is possible before the client is connected
             mc.ingameGUI.getChatGUI().printChatMessage(text);
         }
+    }
+
+    public void preReplayOpened(ReplayHandler handler) {
+        ReplayModExtras.instance.preReplayOpened(handler);
+    }
+
+    public void postReplayOpened(ReplayHandler handler) {
+        ReplayModExtras.instance.postReplayOpened(handler);
+    }
+
+    public void preReplayClosed(ReplayHandler handler) {
+        ReplayModExtras.instance.preReplayClosed(handler);
+    }
+
+    public void postReplayClosed(ReplayHandler handler) {
+        ReplayModExtras.instance.postReplayClosed(handler);
+    }
+
+    public boolean onDispatchKeyPresses() {
+        return ReplayModExtras.instance.onDispatchKeyPresses();
     }
 
     public Minecraft getMinecraft() {

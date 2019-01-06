@@ -2,9 +2,6 @@ package com.replaymod.render.gui;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.InstanceCreator;
 import com.replaymod.render.RenderSettings;
 import com.replaymod.render.ReplayModRender;
 import com.replaymod.render.VideoWriter;
@@ -30,11 +27,7 @@ import de.johni0702.minecraft.gui.utils.Utils;
 import net.minecraft.client.gui.GuiErrorScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.crash.CrashReport;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import org.lwjgl.util.Color;
 import org.lwjgl.util.Dimension;
-import org.lwjgl.util.ReadableColor;
 import org.lwjgl.util.ReadableDimension;
 
 import javax.annotation.Nullable;
@@ -280,12 +273,15 @@ public class GuiRenderSettings extends GuiScreen implements Closeable {
         this.replayHandler = replayHandler;
         this.timeline = timeline;
 
+        // TODO
+        /*
         String json = getConfigProperty(ReplayModRender.instance.getConfiguration()).getString();
         RenderSettings settings = new GsonBuilder()
                 .registerTypeAdapter(RenderSettings.class, (InstanceCreator<RenderSettings>) type -> getDefaultRenderSettings())
                 .registerTypeAdapter(ReadableColor.class, new Gson().getAdapter(Color.class))
                 .create().fromJson(json, RenderSettings.class);
         load(settings);
+        */
     }
 
     protected void updateInputs() {
@@ -440,17 +436,22 @@ public class GuiRenderSettings extends GuiScreen implements Closeable {
 
     @Override
     public void close() {
+        // TODO
+        /*
         RenderSettings settings = save(true);
         String json = new Gson().toJson(settings);
         Configuration config = ReplayModRender.instance.getConfiguration();
         getConfigProperty(config).set(json);
         config.save();
+        */
     }
 
+    /*
     protected Property getConfigProperty(Configuration configuration) {
         return configuration.get("rendersettings", "settings", "{}",
                 "Last state of the render settings GUI. Internal use only.");
     }
+    */
 
     public ReplayHandler getReplayHandler() {
         return replayHandler;

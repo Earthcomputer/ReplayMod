@@ -1,7 +1,6 @@
 package com.replaymod.extra;
 
 import com.replaymod.core.AbstractTask;
-import com.replaymod.extras.OpenEyeExtra;
 import net.minecraftforge.fml.common.Loader;
 
 import java.io.File;

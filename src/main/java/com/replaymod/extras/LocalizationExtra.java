@@ -1,6 +1,7 @@
 package com.replaymod.extras;
 
 import com.google.common.collect.ImmutableSet;
+import com.replaymod.LiteModReplayMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.data.IMetadataSection;
@@ -29,7 +30,7 @@ public class LocalizationExtra implements Extra {
     private static final String LANG_PREFIX = "Translations-master/";
 
     @Override
-    public void register(ReplayMod mod) throws Exception {
+    public void register(LiteModReplayMod mod) throws Exception {
         final Minecraft mc = mod.getMinecraft();
         if (Boolean.parseBoolean(System.getProperty("replaymod.offline", "false"))) {
             return;
@@ -57,7 +58,7 @@ public class LocalizationExtra implements Extra {
                 // Add lang files as resource pack
                 mc.addScheduledTask(() -> {
                     @SuppressWarnings("unchecked")
-                    List<IResourcePack> defaultResourcePacks = mc.defaultResourcePacks;
+                    List<IResourcePack> defaultResourcePacks = mod.getIMinecraft().getDefaultResourcePacks();
                     defaultResourcePacks.add(new LocalizedResourcePack(languages));
                     mc.getLanguageManager().onResourceManagerReload(mc.getResourceManager());
                     LOGGER.debug("Added language files to resource packs and reloaded LanguageManager");

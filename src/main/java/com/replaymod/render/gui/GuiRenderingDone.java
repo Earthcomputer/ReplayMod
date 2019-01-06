@@ -1,6 +1,7 @@
 package com.replaymod.render.gui;
 
 import com.replaymod.core.SettingsRegistry;
+import com.replaymod.extras.youtube.YoutubeUpload;
 import com.replaymod.render.RenderSettings;
 import com.replaymod.render.ReplayModRender;
 import com.replaymod.render.Setting;
@@ -97,6 +98,7 @@ public class GuiRenderingDone extends GuiScreen {
         });
         setTitle(new GuiLabel().setI18nText("replaymod.gui.renderdonetitle"));
         setBackground(Background.DIRT);
+        YoutubeUpload.instance.onRenderingDoneScreenOpened(this);
     }
 
     @Override

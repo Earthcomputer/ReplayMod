@@ -1,5 +1,6 @@
 package com.replaymod.extras.advancedscreenshots;
 
+import com.replaymod.core.ducks.IMinecraft;
 import com.replaymod.render.RenderSettings;
 import com.replaymod.render.capturer.RenderInfo;
 import com.replaymod.render.hooks.ChunkLoadingRenderGlobal;
@@ -33,7 +34,7 @@ public class ScreenshotRenderer implements RenderInfo {
             clrg.uninstall();
 
             mc.gameSettings.hideGUI = hideGUIBefore;
-            mc.resize(displayWidthBefore, displayHeightBefore);
+            ((IMinecraft) mc).doResize(displayWidthBefore, displayHeightBefore);
             return true;
         } catch (OutOfMemoryError e) {
             e.printStackTrace();
@@ -56,7 +57,7 @@ public class ScreenshotRenderer implements RenderInfo {
 
     @Override
     public float updateForNextFrame() {
-        return mc.timer.renderPartialTicks;
+        return ((IMinecraft )mc).getTimer().renderPartialTicks;
     }
 
     @Override

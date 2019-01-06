@@ -1,5 +1,6 @@
 package com.replaymod.extras.advancedscreenshots;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.extras.ReplayModExtras;
 import com.replaymod.render.frame.RGBFrame;
@@ -51,7 +52,7 @@ public class ScreenshotWriter implements FrameConsumer<RGBFrame> {
         } catch (Throwable t) {
             CrashReport report = CrashReport.makeCrashReport(t, "Exporting frame");
 
-            ReplayMod.instance.runLater(() -> Utils.error(ReplayModExtras.LOGGER,
+            LiteModReplayMod.instance.runLater(() -> Utils.error(ReplayModExtras.LOGGER,
                     ReplayModReplay.instance.getReplayHandler().getOverlay(),
                     report, null));
         }

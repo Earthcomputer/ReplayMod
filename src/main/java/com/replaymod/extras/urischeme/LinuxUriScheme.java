@@ -1,5 +1,6 @@
 package com.replaymod.extras.urischeme;
 
+import com.replaymod.LiteModReplayMod;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.StringBuilderWriter;
@@ -16,7 +17,8 @@ public class LinuxUriScheme extends UriScheme {
     public void install() throws URISyntaxException, IOException {
         File file = new File("replaymod.desktop");
         File iconFile = new File("replaymod-icon.jpg");
-        String path = ReplayMod.getContainer().getSource().getAbsolutePath().replace("\\", "\\\\").replace("\"", "\\\"");
+        String path = new File(LiteModReplayMod.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+                .getAbsolutePath().replace("\\", "\\\\").replace("\"", "\\\"");
         String content =
                 "[Desktop Entry]\n" +
                 "Name=ReplayMod\n" +

@@ -1,5 +1,6 @@
 package com.replaymod.extras.advancedscreenshots;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.render.RenderSettings;
 import com.replaymod.render.gui.GuiRenderSettings;
 import com.replaymod.replay.ReplayModReplay;
@@ -10,21 +11,21 @@ import de.johni0702.minecraft.gui.function.Loadable;
 import de.johni0702.minecraft.gui.layout.GridLayout;
 import de.johni0702.minecraft.gui.layout.VerticalLayout;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.util.ScreenShotHelper;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static com.replaymod.core.utils.Utils.error;
 import static com.replaymod.render.ReplayModRender.LOGGER;
 
 public class GuiCreateScreenshot extends GuiRenderSettings implements Loadable {
 
-    private final ReplayMod mod;
+    private final LiteModReplayMod mod;
 
-    public GuiCreateScreenshot(ReplayMod mod) {
+    public GuiCreateScreenshot(LiteModReplayMod mod) {
         super(null, null);
 
         this.mod = mod;
@@ -82,12 +83,31 @@ public class GuiCreateScreenshot extends GuiRenderSettings implements Loadable {
     @Override
     protected File generateOutputFile(RenderSettings.EncodingPreset encodingPreset) {
         File screenshotFolder = new File(getMinecraft().mcDataDir, "screenshots");
-        return ScreenShotHelper.getTimestampedPNGFileForDirectory(screenshotFolder);
+        return getTimestampedPNGFileForDirectory(screenshotFolder);
     }
 
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
+
+    private static File getTimestampedPNGFileForDirectory(File gameDirectory) {
+        String s = DATE_FORMAT.format(new Date());
+        int i = 1;
+
+        while (true) {
+            File file1 = new File(gameDirectory, s + (i == 1 ? "" : "_" + i) + ".png");
+
+            if (!file1.exists()) {
+                return file1;
+            }
+
+            ++i;
+        }
+    }
+
+    /*
     @Override
     protected Property getConfigProperty(Configuration configuration) {
         return configuration.get("screenshotsettings", "settings", "{}",
                 "Last state of the screenshot settings GUI. Internal use only.");
     }
+    */
 }

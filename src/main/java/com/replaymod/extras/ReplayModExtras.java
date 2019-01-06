@@ -1,12 +1,12 @@
 package com.replaymod.extras;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.extras.advancedscreenshots.AdvancedScreenshots;
 import com.replaymod.extras.playeroverview.PlayerOverview;
 import com.replaymod.extras.urischeme.UriSchemeExtra;
 import com.replaymod.extras.youtube.YoutubeUpload;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import com.replaymod.replay.ReplayHandler;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
@@ -15,16 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Mod(modid = ReplayModExtras.MOD_ID,
-        version = "@MOD_VERSION@",
-        acceptedMinecraftVersions = "@MC_VERSION@",
-        acceptableRemoteVersions = "*",
-        clientSideOnly = true,
-        useMetadata = true)
 public class ReplayModExtras {
-    public static final String MOD_ID = "replaymod-extras";
-
-    @Mod.Instance(MOD_ID)
     public static ReplayModExtras instance;
 
     private static final List<Class<? extends Extra>> builtin = Arrays.asList(
@@ -34,31 +25,57 @@ public class ReplayModExtras {
             YoutubeUpload.class,
             FullBrightness.class,
             HotkeyButtons.class,
-            LocalizationExtra.class,
-            OpenEyeExtra.class
+            LocalizationExtra.class
     );
 
     private final Map<Class<? extends Extra>, Extra> instances = new HashMap<>();
 
     public static Logger LOGGER;
 
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        LOGGER = event.getModLog();
-        ReplayMod.instance.getSettingsRegistry().register(Setting.class);
-    }
+    public void init() {
+        LOGGER = LogManager.getLogger("replaymod-extras");
+        LiteModReplayMod.instance.getSettingsRegistry().register(Setting.class);
 
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
         for (Class<? extends Extra> cls : builtin) {
             try {
                 Extra extra = cls.newInstance();
-                extra.register(ReplayMod.instance);
+                extra.register(LiteModReplayMod.instance);
                 instances.put(cls, extra);
             } catch (Throwable t) {
                 LOGGER.warn("Failed to load extra " + cls.getName() + ": ", t);
             }
         }
+    }
+
+    public void beginTick() {
+        instances.values().forEach(Extra::beginTick);
+    }
+
+    public void endTick() {
+        instances.values().forEach(Extra::endTick);
+    }
+
+    public void preReplayOpened(ReplayHandler handler) {
+        instances.values().forEach(extra -> extra.preReplayOpened(handler));
+    }
+
+    public void postReplayOpened(ReplayHandler handler) {
+        instances.values().forEach(extra -> extra.postReplayOpened(handler));
+    }
+
+    public void preReplayClosed(ReplayHandler handler) {
+        instances.values().forEach(extra -> extra.preReplayClosed(handler));
+    }
+
+    public void postReplayClosed(ReplayHandler handler) {
+        instances.values().forEach(extra -> extra.postReplayClosed(handler));
+    }
+
+    public boolean onDispatchKeyPresses() {
+        boolean result = true;
+        for (Extra extra : instances.values())
+            result &= extra.onDispatchKeyPresses();
+        return result;
     }
 
     public <T extends Extra> Optional<T> get(Class<T> cls) {
