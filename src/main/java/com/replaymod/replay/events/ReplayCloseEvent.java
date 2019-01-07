@@ -1,5 +1,5 @@
 package com.replaymod.replay.events;
-
+/*
 import com.replaymod.replay.ReplayHandler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,3 +22,4 @@ public abstract class ReplayCloseEvent extends Event {
         }
     }
 }
+*/

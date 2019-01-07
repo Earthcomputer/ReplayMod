@@ -1,5 +1,5 @@
 package com.replaymod.replay.events;
-
+/*
 import com.replaymod.replay.camera.CameraEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,3 +12,4 @@ public class ReplayChatMessageEvent extends Event {
     @Getter
     private final CameraEntity cameraEntity;
 }
+*/

@@ -24,4 +24,10 @@ public interface IMinecraft {
 
     boolean hasCrashed();
 
+    void setDebugCrashKeyPressTime(long debugCrashKeyPressTime);
+
+    long getDebugCrashKeyPressTime();
+
+    void doUpdateDebugProfilerName(int keyCount);
+
 }

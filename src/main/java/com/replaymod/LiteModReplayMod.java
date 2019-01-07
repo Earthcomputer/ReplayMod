@@ -21,6 +21,9 @@ import com.replaymod.online.handler.OnlineGuiHandler;
 import com.replaymod.recording.ReplayModRecording;
 import com.replaymod.render.ReplayModRender;
 import com.replaymod.replay.ReplayHandler;
+import com.replaymod.replay.ReplayModReplay;
+import com.replaymod.replay.ReplaySender;
+import com.replaymod.replay.camera.CameraEntity;
 import com.replaymod.replaystudio.util.I18n;
 import de.johni0702.minecraft.gui.container.GuiScreen;
 import net.minecraft.client.Minecraft;
@@ -66,6 +69,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         ReplayModOnline.instance = new ReplayModOnline();
         ReplayModRecording.instance = new ReplayModRecording();
         ReplayModRender.instance = new ReplayModRender();
+        ReplayModReplay.instance = new ReplayModReplay();
     }
 
     public KeyBindingRegistry getKeyBindingRegistry() {
@@ -111,6 +115,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         ReplayModOnline.instance.init();
         ReplayModRecording.instance.init();
         ReplayModRender.instance.init();
+        ReplayModReplay.instance.init();
     }
 
     @Override
@@ -167,6 +172,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         });
 
         ReplayModOnline.instance.postInit();
+        ReplayModReplay.instance.postInit();
     }
 
     /**
@@ -196,7 +202,8 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
 
     @Override
     public void onRunGameLoop(Minecraft minecraft) {
-        keyBindingRegistry.onKeyInput();
+        CameraEntity.onPreClientTick();
+        ReplaySender.instances.forEach(ReplaySender::onWorldTick);
     }
 
     @Override
@@ -209,6 +216,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         ReplayModCompat.instance.onRenderTickStart();
         ReplayModExtras.instance.beginTick();
         ReplayModRecording.instance.getRecordingEventHandler().checkForGamePaused();
+        CameraEntity.onRenderUpdate();
     }
 
     @Override
@@ -308,6 +316,16 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
 
     public void onUnloadWorld() {
         ReplayModRecording.instance.onDisconnected();
+    }
+
+    public void onSettingChanged(SettingsRegistry registry, SettingsRegistry.SettingKey<?> key) {
+        CameraEntity.onSettingsChanged(key);
+    }
+
+    public void onKeyInput() {
+        keyBindingRegistry.onKeyInput();
+        if (ReplayModReplay.instance.getReplayHandler() != null)
+            ReplayModReplay.instance.getReplayHandler().getOverlay().onKeyInput();
     }
 
     public Minecraft getMinecraft() {

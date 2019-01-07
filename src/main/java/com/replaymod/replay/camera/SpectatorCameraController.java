@@ -1,6 +1,9 @@
 package com.replaymod.replay.camera;
 
+import com.replaymod.extras.ducks.IKeyBinding;
 import com.replaymod.replay.ReplayModReplay;
+import com.replaymod.replay.ducks.IEntityLivingBase;
+import com.replaymod.replay.ducks.IEntityPlayer;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -25,7 +28,7 @@ public class SpectatorCameraController implements CameraController {
         for (KeyBinding binding : Arrays.asList(mc.gameSettings.keyBindAttack, mc.gameSettings.keyBindUseItem,
                 mc.gameSettings.keyBindJump, mc.gameSettings.keyBindSneak, mc.gameSettings.keyBindForward,
                 mc.gameSettings.keyBindBack, mc.gameSettings.keyBindLeft, mc.gameSettings.keyBindRight)) {
-            binding.pressTime = 0;
+            ((IKeyBinding) binding).setPressTime(0);
         }
 
         // Prevent mouse movement
@@ -41,9 +44,9 @@ public class SpectatorCameraController implements CameraController {
             if (view instanceof EntityPlayer) {
                 EntityPlayer viewPlayer = (EntityPlayer) view;
                 camera.inventory = viewPlayer.inventory;
-                camera.itemStackMainHand = viewPlayer.itemStackMainHand;
+                ((IEntityPlayer) camera).setItemStackMainHand(((IEntityPlayer) viewPlayer).getItemStackMainHand());
                 camera.swingingHand = viewPlayer.swingingHand;
-                camera.activeItemStackUseCount = viewPlayer.activeItemStackUseCount;
+                ((IEntityLivingBase) camera).setItemInUseCount(viewPlayer.getItemInUseCount());
             }
         }
     }

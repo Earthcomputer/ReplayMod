@@ -1,5 +1,5 @@
 package com.replaymod.replay.gui.screen;
-
+/*
 import com.replaymod.core.utils.ModCompat;
 import com.replaymod.replay.ReplayModReplay;
 import com.replaymod.replaystudio.data.ModInfo;
@@ -96,3 +96,4 @@ public class GuiModCompatWarning extends AbstractGuiScreen<GuiModCompatWarning> 
         return this;
     }
 }
+*/

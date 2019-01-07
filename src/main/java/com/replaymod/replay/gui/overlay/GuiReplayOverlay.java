@@ -1,5 +1,6 @@
 package com.replaymod.replay.gui.overlay;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replay.ReplaySender;
 import de.johni0702.minecraft.gui.GuiRenderer;
@@ -15,15 +16,12 @@ import de.johni0702.minecraft.gui.layout.CustomLayout;
 import de.johni0702.minecraft.gui.layout.HorizontalLayout;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.ReadableDimension;
 import org.lwjgl.util.ReadablePoint;
 import org.lwjgl.util.WritablePoint;
 
-import static com.replaymod.core.ReplayMod.TEXTURE_SIZE;
+import static com.replaymod.LiteModReplayMod.TEXTURE_SIZE;
 
 public class GuiReplayOverlay extends AbstractGuiOverlay<GuiReplayOverlay> {
 
@@ -42,7 +40,7 @@ public class GuiReplayOverlay extends AbstractGuiOverlay<GuiReplayOverlay> {
             }
             return tooltip;
         }
-    }.setSize(20, 20).setTexture(ReplayMod.TEXTURE, TEXTURE_SIZE).setTooltip(new GuiTooltip());
+    }.setSize(20, 20).setTexture(LiteModReplayMod.TEXTURE, TEXTURE_SIZE).setTooltip(new GuiTooltip());
     public final GuiSlider speedSlider = new GuiSlider().setSize(100, 20).setSteps(37); // 0.0 is not included
     public final GuiMarkerTimeline timeline;
 
@@ -133,6 +131,7 @@ public class GuiReplayOverlay extends AbstractGuiOverlay<GuiReplayOverlay> {
         }
     }
 
+    /*
     @Override
     public void setVisible(boolean visible) {
         if (isVisible() != visible) {
@@ -144,9 +143,12 @@ public class GuiReplayOverlay extends AbstractGuiOverlay<GuiReplayOverlay> {
         }
         super.setVisible(visible);
     }
+    */
 
-    @SubscribeEvent
-    public void onKeyInput(InputEvent.KeyInputEvent event) {
+    public void onKeyInput() {
+        if (!isVisible())
+            return;
+
         GameSettings gameSettings = getMinecraft().gameSettings;
         while (gameSettings.keyBindChat.isPressed() || gameSettings.keyBindCommand.isPressed()) {
             if (!isMouseVisible()) {

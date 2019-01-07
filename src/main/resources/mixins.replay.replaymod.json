@@ -13,7 +13,15 @@
     "MixinRenderManager",
     "MixinTileEntityEndPortalRenderer",
     "MixinViewFrustum",
-    "MixinWorldClient"
+    "MixinWorldClient",
+    "MixinRenderGlobal",
+    "MixinGuiIngame",
+    "MixinEntityRenderer",
+    "MixinItemRenderer",
+    "MixinEntityPlayer",
+    "MixinEntityLivingBase",
+    "MixinEntityOtherPlayerMP",
+    "MixinWorld"
   ],
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.6.11",

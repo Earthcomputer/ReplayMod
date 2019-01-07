@@ -1,9 +1,10 @@
 package com.replaymod.replay;
 
+import com.replaymod.LiteModReplayMod;
+import com.replaymod.core.ducks.IMinecraft;
 import com.replaymod.core.utils.WrappedTimer;
 import com.replaymod.replay.camera.CameraController;
 import com.replaymod.replay.camera.CameraEntity;
-import com.replaymod.replay.events.ReplayDispatchKeypressesEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.GameSettings;
@@ -11,9 +12,6 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.Timer;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -55,7 +53,8 @@ public class InputReplayTimer extends WrappedTimer {
     }
 
     protected void handleMouseEvent() {
-        if (ForgeHooksClient.postMouseEvent()) return;
+        // TODO: Forge support
+        //if (ForgeHooksClient.postMouseEvent()) return;
 
         int button = Mouse.getEventButton() - 100;
         boolean pressed = Mouse.getEventButtonState();
@@ -98,7 +97,8 @@ public class InputReplayTimer extends WrappedTimer {
             }
         }
 
-        FMLCommonHandler.instance().fireMouseInput();
+        // TODO: Forge support
+        //FMLCommonHandler.instance().fireMouseInput();
     }
 
     protected void handleKeyEvent() {
@@ -111,20 +111,21 @@ public class InputReplayTimer extends WrappedTimer {
         }
 
         // Still want to be able to create debug crashes ]:D
-        if (mc.debugCrashKeyPressTime > 0) {
-            if (Minecraft.getSystemTime() - mc.debugCrashKeyPressTime >= 6000L) {
+        IMinecraft imc = (IMinecraft) mc;
+        if (imc.getDebugCrashKeyPressTime() > 0) {
+            if (Minecraft.getSystemTime() - imc.getDebugCrashKeyPressTime() >= 6000L) {
                 throw new ReportedException(new CrashReport("Manually triggered debug crash", new Throwable()));
             }
 
             if (!Keyboard.isKeyDown(Keyboard.KEY_F3) || !Keyboard.isKeyDown(Keyboard.KEY_C)) {
-                mc.debugCrashKeyPressTime = -1;
+                imc.setDebugCrashKeyPressTime(-1);
             }
         } else if (Keyboard.isKeyDown(Keyboard.KEY_F3) && Keyboard.isKeyDown(Keyboard.KEY_C)) {
-            mc.debugCrashKeyPressTime = Minecraft.getSystemTime();
+            imc.setDebugCrashKeyPressTime(Minecraft.getSystemTime());
         }
 
         // Twitch, screenshot, fullscreen, etc. (stuff that works everywhere)
-        if (!MinecraftForge.EVENT_BUS.post(new ReplayDispatchKeypressesEvent.Pre())) {
+        if (LiteModReplayMod.instance.onDispatchKeyPresses()) {
             mc.dispatchKeypresses();
         }
 
@@ -205,17 +206,18 @@ public class InputReplayTimer extends WrappedTimer {
             // Navigation in the debug chart
             if (mc.gameSettings.showDebugInfo && mc.gameSettings.showDebugProfilerChart) {
                 if (key == Keyboard.KEY_0) {
-                    mc.updateDebugProfilerName(0);
+                    imc.doUpdateDebugProfilerName(0);
                 }
 
                 for (int i = 0; i < 9; ++i) {
                     if (key == 2 + i) {
-                        mc.updateDebugProfilerName(i + 1);
+                        imc.doUpdateDebugProfilerName(i + 1);
                     }
                 }
             }
         }
 
-        FMLCommonHandler.instance().fireKeyInput();
+        // TODO: Forge
+        //FMLCommonHandler.instance().fireKeyInput();
     }
 }

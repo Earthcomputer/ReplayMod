@@ -2,12 +2,14 @@ package com.replaymod.replay;
 
 import com.google.common.base.Preconditions;
 import com.mojang.authlib.GameProfile;
+import com.replaymod.LiteModReplayMod;
+import com.replaymod.core.ducks.IMinecraft;
+import com.replaymod.core.ducks.ITimer;
 import com.replaymod.core.utils.Restrictions;
 import com.replaymod.core.utils.WrappedTimer;
 import com.replaymod.replay.camera.CameraEntity;
 import com.replaymod.replay.camera.SpectatorCameraController;
-import com.replaymod.replay.events.ReplayCloseEvent;
-import com.replaymod.replay.events.ReplayOpenEvent;
+import com.replaymod.replay.ducks.IEntityOtherPlayerMP;
 import com.replaymod.replay.gui.overlay.GuiReplayOverlay;
 import com.replaymod.replaystudio.data.Marker;
 import com.replaymod.replaystudio.replay.ReplayFile;
@@ -24,9 +26,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.EnumPacketDirection;
 import net.minecraft.network.NetworkManager;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
 import org.lwjgl.opengl.Display;
 
 import java.io.IOException;
@@ -77,7 +76,7 @@ public class ReplayHandler {
         Preconditions.checkState(mc.isCallingFromMinecraftThread(), "Must be called from Minecraft thread.");
         this.replayFile = replayFile;
 
-        MinecraftForge.EVENT_BUS.post(new ReplayOpenEvent.Pre(this));
+        LiteModReplayMod.instance.preReplayOpened(this);
 
         markers = new ArrayList<>(replayFile.getMarkers().or(Collections.emptySet()));
 
@@ -88,7 +87,7 @@ public class ReplayHandler {
         overlay = new GuiReplayOverlay(this);
         overlay.setVisible(true);
 
-        MinecraftForge.EVENT_BUS.post(new ReplayOpenEvent.Post(this));
+        LiteModReplayMod.instance.postReplayOpened(this);
     }
 
     void restartedReplay() {
@@ -102,7 +101,7 @@ public class ReplayHandler {
     public void endReplay() throws IOException {
         Preconditions.checkState(mc.isCallingFromMinecraftThread(), "Must be called from Minecraft thread.");
 
-        MinecraftForge.EVENT_BUS.post(new ReplayCloseEvent.Pre(this));
+        LiteModReplayMod.instance.preReplayClosed(this);
 
         replaySender.terminateReplay();
 
@@ -120,14 +119,14 @@ public class ReplayHandler {
             mc.loadWorld(null);
         }
 
-        mc.timer.tickLength = WrappedTimer.DEFAULT_MS_PER_TICK;
+        ((ITimer) ((IMinecraft) mc).getTimer()).setTickLength(WrappedTimer.DEFAULT_MS_PER_TICK);
         overlay.setVisible(false);
 
         ReplayModReplay.instance.replayHandler = null;
 
         mc.displayGuiScreen(null);
 
-        MinecraftForge.EVENT_BUS.post(new ReplayCloseEvent.Post(this));
+        LiteModReplayMod.instance.postReplayClosed(this);
     }
 
     private void setup() {
@@ -142,16 +141,18 @@ public class ReplayHandler {
         NetHandlerPlayClient netHandlerPlayClient =
                 new NetHandlerPlayClient(mc, null, networkManager, new GameProfile(UUID.randomUUID(), "Player"));
         networkManager.setNetHandler(netHandlerPlayClient);
-        FMLClientHandler.instance().setPlayClient(netHandlerPlayClient);
+
+        // TODO: FML
+        //FMLClientHandler.instance().setPlayClient(netHandlerPlayClient);
 
         channel = new EmbeddedChannel();
-        NetworkDispatcher networkDispatcher = new NetworkDispatcher(networkManager);
-        channel.attr(NetworkDispatcher.FML_DISPATCHER).set(networkDispatcher);
+        //NetworkDispatcher networkDispatcher = new NetworkDispatcher(networkManager);
+        //channel.attr(NetworkDispatcher.FML_DISPATCHER).set(networkDispatcher);
 
         channel.pipeline().addFirst("ReplayModReplay_replaySender", replaySender);
         channel.pipeline().addLast("packet_handler", networkManager);
         channel.pipeline().fireChannelActive();
-        networkDispatcher.clientToServerHandshake();
+        //networkDispatcher.clientToServerHandshake();
     }
 
     public ReplayFile getReplayFile() {
@@ -339,9 +340,10 @@ public class ReplayHandler {
                 for (Entity entity : mc.world.loadedEntityList) {
                     if (entity instanceof EntityOtherPlayerMP) {
                         EntityOtherPlayerMP e = (EntityOtherPlayerMP) entity;
-                        e.setPosition(e.otherPlayerMPX, e.otherPlayerMPY, e.otherPlayerMPZ);
-                        e.rotationYaw = (float) e.otherPlayerMPYaw;
-                        e.rotationPitch = (float) e.otherPlayerMPPitch;
+                        IEntityOtherPlayerMP ie = (IEntityOtherPlayerMP) e;
+                        e.setPosition(ie.getOtherPlayerMPX(), ie.getOtherPlayerMPY(), ie.getOtherPlayerMPZ());
+                        e.rotationYaw = (float) ie.getOtherPlayerMPYaw();
+                        e.rotationPitch = (float) ie.getOtherPlayerMPPitch();
                     }
                     entity.lastTickPosX = entity.prevPosX = entity.posX;
                     entity.lastTickPosY = entity.prevPosY = entity.posY;

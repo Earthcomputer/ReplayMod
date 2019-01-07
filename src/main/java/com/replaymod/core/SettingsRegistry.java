@@ -1,5 +1,6 @@
 package com.replaymod.core;
 
+import com.replaymod.LiteModReplayMod;
 import net.minecraft.client.resources.I18n;
 
 import java.lang.reflect.Field;
@@ -84,7 +85,7 @@ public class SettingsRegistry {
         }
         */
         settings.put(key, value);
-        //MinecraftForge.EVENT_BUS.post(new SettingsChangedEvent(this, key));
+        LiteModReplayMod.instance.onSettingChanged(this, key);
     }
 
     public void save() {

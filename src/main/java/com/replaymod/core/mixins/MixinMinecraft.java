@@ -32,6 +32,10 @@ public abstract class MixinMinecraft implements IMinecraft {
 
     @Shadow private boolean hasCrashed;
 
+    @Shadow private long debugCrashKeyPressTime;
+
+    @Shadow protected abstract void updateDebugProfilerName(int keyCount);
+
     @Override
     public Queue<FutureTask<?>> getScheduledTasks() {
         return scheduledTasks;
@@ -90,5 +94,40 @@ public abstract class MixinMinecraft implements IMinecraft {
     @Override
     public boolean hasCrashed() {
         return hasCrashed;
+    }
+
+    @Override
+    public void setDebugCrashKeyPressTime(long debugCrashKeyPressTime) {
+        this.debugCrashKeyPressTime = debugCrashKeyPressTime;
+    }
+
+    @Override
+    public long getDebugCrashKeyPressTime() {
+        return debugCrashKeyPressTime;
+    }
+
+    @Override
+    public void doUpdateDebugProfilerName(int keyCount) {
+        updateDebugProfilerName(keyCount);
+    }
+
+    // Weird injections here to do the equivalent of injecting into the end of the while loop
+    private boolean anyKeyPressed = false;
+
+    @Inject(method = "runTickKeyboard", at = @At(value = "INVOKE", target = "Lorg/lwjgl/input/Keyboard;getEventKey()I", remap = false, ordinal = 0))
+    private void loopTickKeyboard(CallbackInfo ci) {
+        if (anyKeyPressed) {
+            LiteModReplayMod.instance.onKeyInput();
+        } else {
+            anyKeyPressed = true;
+        }
+    }
+
+    @Inject(method = "runTickKeyboard", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;processKeyBinds()V"))
+    private void endTickKeyboard(CallbackInfo ci) {
+        if (anyKeyPressed) {
+            LiteModReplayMod.instance.onKeyInput();
+            anyKeyPressed = false;
+        }
     }
 }

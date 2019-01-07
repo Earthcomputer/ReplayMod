@@ -3,6 +3,7 @@ package com.replaymod.replay.mixin;
 import com.replaymod.replay.camera.CameraEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,8 +22,8 @@ public abstract class MixinRenderLivingBase {
         }
     }
 
-    @Redirect(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityLivingBase;isInvisibleToPlayer(Lnet/minecraft/entity/player/EntityPlayer;)Z"))
-    private boolean replayModReplay_shouldInvisibleNotBeRendered(EntityLivingBase entity, EntityPlayer thePlayer) {
+    @Redirect(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isInvisibleToPlayer(Lnet/minecraft/entity/player/EntityPlayer;)Z"))
+    private boolean replayModReplay_shouldInvisibleNotBeRendered(Entity entity, EntityPlayer thePlayer) {
         return thePlayer instanceof CameraEntity || entity.isInvisibleToPlayer(thePlayer);
     }
 }

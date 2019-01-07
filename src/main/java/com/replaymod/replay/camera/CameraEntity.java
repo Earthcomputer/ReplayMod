@@ -1,10 +1,12 @@
 package com.replaymod.replay.camera;
 
-import com.replaymod.core.events.SettingsChangedEvent;
+import com.replaymod.LiteModReplayMod;
+import com.replaymod.core.SettingsRegistry;
 import com.replaymod.core.utils.Utils;
+import com.replaymod.extras.ducks.IKeyBinding;
 import com.replaymod.replay.ReplayModReplay;
 import com.replaymod.replay.Setting;
-import com.replaymod.replay.events.ReplayChatMessageEvent;
+import com.replaymod.replay.ducks.IItemRenderer;
 import com.replaymod.replaystudio.util.Location;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -27,14 +30,9 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -66,11 +64,21 @@ public class CameraEntity extends EntityPlayerSP {
      * Therefore we cannot register any event handlers directly in the CameraEntity class and
      * instead have this inner class.
      */
+    private static final List<EventHandler> eventHandlers = new ArrayList<>();
     private final EventHandler eventHandler = new EventHandler();
+    {
+        eventHandlers.add(eventHandler);
+    }
+
+    public CameraEntity(World world) {
+        // This constructor should never be called, it's just to make the mcdev plugin happy
+        super(null, world, null, null, null);
+        assert false;
+    }
 
     public CameraEntity(Minecraft mcIn, World worldIn, NetHandlerPlayClient netHandlerPlayClient, StatisticsManager statisticsManager, RecipeBook recipeBook) {
         super(mcIn, worldIn, netHandlerPlayClient, statisticsManager, recipeBook);
-        MinecraftForge.EVENT_BUS.register(eventHandler);
+        //MinecraftForge.EVENT_BUS.register(eventHandler);
         if (ReplayModReplay.instance.getReplayHandler().getSpectatedUUID() == null) {
             cameraController = ReplayModReplay.instance.createCameraController(this);
         } else {
@@ -252,14 +260,6 @@ public class CameraEntity extends EntityPlayerSP {
     }
 
     @Override
-    public boolean shouldRenderInPass(int pass) {
-        // Never render the camera
-        // This is necessary to hide the player head in third person mode and to not
-        // cause any unwanted shadows when rendering with shaders.
-        return false;
-    }
-
-    @Override
     public boolean isInvisible() {
         Entity view = mc.getRenderViewEntity();
         if (view != this) {
@@ -344,7 +344,8 @@ public class CameraEntity extends EntityPlayerSP {
         return pos;
     }
 
-    @Override
+    //@Override // override Forge method
+    @SuppressWarnings("unused")
     public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
         // Do not open any block GUIs for the camera entities
         // Note: Vanilla GUIs are filtered out on a packet level, this only applies to mod GUIs
@@ -353,7 +354,7 @@ public class CameraEntity extends EntityPlayerSP {
     @Override
     public void setDead() {
         super.setDead();
-        MinecraftForge.EVENT_BUS.unregister(eventHandler);
+        eventHandlers.remove(eventHandler);
     }
 
     private void update() {
@@ -366,11 +367,11 @@ public class CameraEntity extends EntityPlayerSP {
             if (canSpectate(mc.pointedEntity)) {
                 ReplayModReplay.instance.getReplayHandler().spectateEntity(mc.pointedEntity);
                 // Make sure we don't exit right away
-                mc.gameSettings.keyBindSneak.pressTime = 0;
+                ((IKeyBinding) mc.gameSettings.keyBindSneak).setPressTime(0);
             }
         }
 
-        Map<String, KeyBinding> keyBindings = ReplayMod.instance.getKeyBindingRegistry().getKeyBindings();
+        Map<String, KeyBinding> keyBindings = LiteModReplayMod.instance.getKeyBindingRegistry().getKeyBindings();
         if (keyBindings.get("replaymod.input.rollclockwise").isKeyDown()) {
             roll += Utils.isCtrlDown() ? 0.2 : 1;
         }
@@ -393,41 +394,81 @@ public class CameraEntity extends EntityPlayerSP {
 
     @Override
     public void sendMessage(ITextComponent message) {
-        if (MinecraftForge.EVENT_BUS.post(new ReplayChatMessageEvent(this))) return;
+        // TODO: Forge
+        //if (MinecraftForge.EVENT_BUS.post(new ReplayChatMessageEvent(this))) return;
         super.sendMessage(message);
     }
 
+    public static void onPreClientTick() {
+        eventHandlers.forEach(EventHandler::onPreClientTick);
+    }
+
+    public static void onRenderUpdate() {
+        eventHandlers.forEach(EventHandler::onRenderUpdate);
+    }
+
+    public static boolean preCrosshairRender() {
+        return eventHandlers.isEmpty();
+    }
+
+    public static boolean preRenderPlayerStats() {
+        return eventHandlers.isEmpty();
+    }
+
+    public static boolean preRenderExpBar() {
+        return eventHandlers.isEmpty();
+    }
+
+    public static boolean preRenderMountHealth() {
+        return eventHandlers.isEmpty();
+    }
+
+    public static boolean preRenderJumpBar() {
+        return eventHandlers.isEmpty();
+    }
+
+    public static boolean preRenderPotionIcons() {
+        return eventHandlers.isEmpty();
+    }
+
+    public static void preRenderGameOverlay() {
+        eventHandlers.forEach(EventHandler::preRenderGameOverlay);
+    }
+
+    public static void postRenderGameOverlay() {
+        eventHandlers.forEach(EventHandler::postRenderGameOverlay);
+    }
+
+    public static void onSettingsChanged(SettingsRegistry.SettingKey<?> key) {
+        eventHandlers.forEach(handler -> handler.onSettingsChanged(key));
+    }
+
+    public static boolean onRenderHand() {
+        boolean result = true;
+        for (EventHandler handler : eventHandlers)
+            result &= handler.onRenderHand();
+        if (result)
+            eventHandlers.forEach(EventHandler::onRenderHandMonitor);
+        return result;
+    }
+
+    public static void onEntityViewRenderEvent() {
+        eventHandlers.forEach(EventHandler::onEntityViewRenderEvent);
+    }
+
+    // FIXME: Forge compatibility
     private class EventHandler {
-        @SubscribeEvent
-        public void onPreClientTick(TickEvent.ClientTickEvent event) {
-            if (event.phase == TickEvent.Phase.START) {
-                update();
-                updateArmYawAndPitch();
-            }
+        public void onPreClientTick() {
+            update();
+            updateArmYawAndPitch();
         }
 
-        @SubscribeEvent
-        public void onRenderUpdate(TickEvent.RenderTickEvent event) {
-            if (event.phase == TickEvent.Phase.START) {
-                update();
-            }
+        public void onRenderUpdate() {
+            update();
         }
 
-        @SubscribeEvent
-        public void preCrosshairRender(RenderGameOverlayEvent.Pre event) {
-            // The crosshair should only render if targeted entity can actually be spectated
-            if (event.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS) {
-                event.setCanceled(!canSpectate(mc.pointedEntity));
-            }
-            // Hotbar should never be rendered
-            if (event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR) {
-                event.setCanceled(true);
-            }
-        }
-
-        @SubscribeEvent
-        public void onSettingsChanged(SettingsChangedEvent event) {
-            if (event.getKey() == Setting.CAMERA) {
+        public void onSettingsChanged(SettingsRegistry.SettingKey<?> key) {
+            if (key == Setting.CAMERA) {
                 if (ReplayModReplay.instance.getReplayHandler().getSpectatedUUID() == null) {
                     cameraController = ReplayModReplay.instance.createCameraController(CameraEntity.this);
                 } else {
@@ -436,16 +477,15 @@ public class CameraEntity extends EntityPlayerSP {
             }
         }
 
-        @SubscribeEvent
-        public void onRenderHand(RenderHandEvent event) {
+        public boolean onRenderHand() {
             // Unless we are spectating another player, don't render our hand
             if (mc.getRenderViewEntity() == CameraEntity.this || !(mc.getRenderViewEntity() instanceof EntityPlayer)) {
-                event.setCanceled(true);
+                return false;
             }
+            return true;
         }
 
-        @SubscribeEvent(priority = EventPriority.LOWEST)
-        public void onRenderHandMonitor(RenderHandEvent event) {
+        public void onRenderHandMonitor() {
             Entity view = mc.getRenderViewEntity();
             if (view instanceof EntityPlayer) {
                 EntityPlayer player = (EntityPlayer) view;
@@ -453,12 +493,13 @@ public class CameraEntity extends EntityPlayerSP {
                 if (lastHandRendered != player) {
                     lastHandRendered = player;
 
-                    mc.entityRenderer.itemRenderer.prevEquippedProgressMainHand = 1;
-                    mc.entityRenderer.itemRenderer.prevEquippedProgressOffHand = 1;
-                    mc.entityRenderer.itemRenderer.equippedProgressMainHand = 1;
-                    mc.entityRenderer.itemRenderer.equippedProgressOffHand = 1;
-                    mc.entityRenderer.itemRenderer.itemStackMainHand = player.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
-                    mc.entityRenderer.itemRenderer.itemStackOffHand = player.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND);
+                    IItemRenderer iItemRenderer = (IItemRenderer) mc.entityRenderer.itemRenderer;
+                    iItemRenderer.setPrevEquippedProgressMainHand(1);
+                    iItemRenderer.setPrevEquippedProgressOffHand(1);
+                    iItemRenderer.setEquippedProgressMainHand(1);
+                    iItemRenderer.setEquippedProgressOffHand(1);
+                    iItemRenderer.setItemStackMainHand(player.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND));
+                    iItemRenderer.setItemStackOffHand(player.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND));
 
 
                     mc.player.renderArmYaw = mc.player.prevRenderArmYaw = player.rotationYaw;
@@ -467,50 +508,20 @@ public class CameraEntity extends EntityPlayerSP {
             }
         }
 
-        @SubscribeEvent
-        public void onEntityViewRenderEvent(EntityViewRenderEvent.CameraSetup event) {
+        public void onEntityViewRenderEvent() {
             if (mc.getRenderViewEntity() == CameraEntity.this) {
-                event.setRoll(roll);
+                GlStateManager.rotate(roll, 0f, 0f, 1f);
             }
         }
 
         private boolean heldItemTooltipsWasTrue;
 
-        @SubscribeEvent
-        public void preRenderGameOverlay(RenderGameOverlayEvent.Pre event) {
-            switch (event.getType()) {
-                case ALL:
-                    heldItemTooltipsWasTrue = mc.gameSettings.heldItemTooltips;
-                    mc.gameSettings.heldItemTooltips = false;
-                    break;
-                case ARMOR:
-                case HEALTH:
-                case FOOD:
-                case AIR:
-                case HOTBAR:
-                case EXPERIENCE:
-                case HEALTHMOUNT:
-                case JUMPBAR:
-                case POTION_ICONS:
-                    event.setCanceled(true);
-                    break;
-                case HELMET:
-                case PORTAL:
-                case CROSSHAIRS:
-                case BOSSHEALTH:
-                case BOSSINFO:
-                case SUBTITLES:
-                case TEXT:
-                case CHAT:
-                case PLAYER_LIST:
-                case DEBUG:
-                    break;
-            }
+        public void preRenderGameOverlay() {
+            heldItemTooltipsWasTrue = mc.gameSettings.heldItemTooltips;
+            mc.gameSettings.heldItemTooltips = false;
         }
 
-        @SubscribeEvent
-        public void postRenderGameOverlay(RenderGameOverlayEvent.Post event) {
-            if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
+        public void postRenderGameOverlay() {
             mc.gameSettings.heldItemTooltips = heldItemTooltipsWasTrue;
         }
     }

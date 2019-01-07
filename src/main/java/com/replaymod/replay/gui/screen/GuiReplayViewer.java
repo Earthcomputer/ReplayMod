@@ -5,6 +5,7 @@ import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.mojang.realmsclient.gui.ChatFormatting;
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.SettingsRegistry;
 import com.replaymod.core.gui.GuiReplaySettings;
 import com.replaymod.core.utils.Utils;
@@ -284,7 +285,7 @@ public class GuiReplayViewer extends GuiScreen implements Typeable {
     @Override
     public boolean typeKey(ReadablePoint mousePosition, int keyCode, char keyChar, boolean ctrlDown, boolean shiftDown) {
         if (keyCode == Keyboard.KEY_F1) {
-            SettingsRegistry reg = ReplayMod.instance.getSettingsRegistry();
+            SettingsRegistry reg = LiteModReplayMod.instance.getSettingsRegistry();
             reg.set(Setting.SHOW_SERVER_IPS, !reg.get(Setting.SHOW_SERVER_IPS));
             reg.save();
             list.load();
@@ -324,7 +325,7 @@ public class GuiReplayViewer extends GuiScreen implements Typeable {
 
             name.setText(ChatFormatting.UNDERLINE + Utils.fileNameToReplayName(file.getName()));
             if (Strings.isEmpty(metaData.getServerName())
-                    || !ReplayMod.instance.getSettingsRegistry().get(Setting.SHOW_SERVER_IPS)) {
+                    || !LiteModReplayMod.instance.getSettingsRegistry().get(Setting.SHOW_SERVER_IPS)) {
                 server.setI18nText("replaymod.gui.iphidden").setColor(Colors.DARK_RED);
             } else {
                 server.setText(metaData.getServerName());

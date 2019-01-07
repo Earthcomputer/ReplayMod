@@ -1,5 +1,6 @@
 package com.replaymod.replay.gui.overlay;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replaystudio.data.Marker;
 import com.replaymod.replaystudio.util.Location;
@@ -48,7 +49,7 @@ public class GuiMarkerTimeline extends AbstractGuiTimeline<GuiMarkerTimeline> im
     }
 
     protected void drawMarkers(GuiRenderer renderer, ReadableDimension size) {
-        renderer.bindTexture(ReplayMod.TEXTURE);
+        renderer.bindTexture(LiteModReplayMod.TEXTURE);
 
         for (Marker marker : replayHandler.getMarkers()) {
             drawMarker(renderer, size, marker);

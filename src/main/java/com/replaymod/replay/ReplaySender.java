@@ -2,9 +2,13 @@ package com.replaymod.replay;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
+import com.replaymod.LiteModReplayMod;
+import com.replaymod.core.ducks.IMinecraft;
+import com.replaymod.core.ducks.ITimer;
 import com.replaymod.core.utils.Restrictions;
 import com.replaymod.core.utils.WrappedTimer;
 import com.replaymod.replay.camera.CameraEntity;
+import com.replaymod.replay.ducks.IWorld;
 import com.replaymod.replaystudio.io.ReplayInputStream;
 import com.replaymod.replaystudio.io.ReplayOutputStream;
 import com.replaymod.replaystudio.replay.ReplayFile;
@@ -34,9 +38,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -168,6 +169,8 @@ public class ReplaySender extends ChannelDuplexHandler {
      */
     private final File tempResourcePackFolder = Files.createTempDir();
 
+    public static final List<ReplaySender> instances = new ArrayList<>();
+
     /**
      * Create a new replay sender.
      * @param file The replay file
@@ -175,12 +178,12 @@ public class ReplaySender extends ChannelDuplexHandler {
      * @see #asyncMode
      */
     public ReplaySender(ReplayHandler replayHandler, ReplayFile file, boolean asyncMode) throws IOException {
+        instances.add(this);
+
         this.replayHandler = replayHandler;
         this.replayFile = file;
         this.asyncMode = asyncMode;
         this.replayLength = file.getMetaData().getDuration();
-
-        MinecraftForge.EVENT_BUS.register(this);
 
         if (asyncMode) {
             new Thread(asyncSender, "replaymod-async-sender").start();
@@ -250,7 +253,7 @@ public class ReplaySender extends ChannelDuplexHandler {
      */
     public void terminateReplay() {
         terminate = true;
-        MinecraftForge.EVENT_BUS.unregister(this);
+        instances.remove(this);
         try {
             channelInactive(ctx);
             ctx.channel().pipeline().close();
@@ -260,10 +263,8 @@ public class ReplaySender extends ChannelDuplexHandler {
         }
     }
 
-    @SubscribeEvent
-    public void onWorldTick(TickEvent.ClientTickEvent event) {
+    public void onWorldTick() {
         // Unfortunately the WorldTickEvent doesn't seem to be emitted on the CLIENT side
-        if (event.phase != TickEvent.Phase.START) return;
 
         // Spawning a player into an empty chunk (which we might do with the recording player)
         // prevents it from being moved by teleport packets (it essentially gets stuck) because
@@ -325,7 +326,7 @@ public class ReplaySender extends ChannelDuplexHandler {
                                     }
 
                                     world.loadedEntityList.remove(i--);
-                                    world.onEntityRemoved(entity);
+                                    ((IWorld) world).doOnEntityRemoved(entity);
                                 }
 
                             }
@@ -481,7 +482,7 @@ public class ReplaySender extends ChannelDuplexHandler {
                 @SuppressWarnings("unchecked")
                 public void run() {
                     if (mc.world == null || !mc.isCallingFromMinecraftThread()) {
-                        ReplayMod.instance.runLater(this);
+                        LiteModReplayMod.instance.runLater(this);
                         return;
                     }
 
@@ -548,7 +549,7 @@ public class ReplaySender extends ChannelDuplexHandler {
      * @return {@code true} if it is paused, {@code false} otherwise
      */
     public boolean paused() {
-        return mc.timer.tickLength == Float.POSITIVE_INFINITY;
+        return ((ITimer) ((IMinecraft) mc).getTimer()).getTickLength() == Float.POSITIVE_INFINITY;
     }
 
     /**
@@ -568,7 +569,7 @@ public class ReplaySender extends ChannelDuplexHandler {
      */
     public void setReplaySpeed(final double d) {
         if(d != 0) this.replaySpeed = d;
-        mc.timer.tickLength = WrappedTimer.DEFAULT_MS_PER_TICK / (float) d;
+        ((ITimer) ((IMinecraft) mc).getTimer()).setTickLength(WrappedTimer.DEFAULT_MS_PER_TICK / (float) d);
     }
 
     /////////////////////////////////////////////////////////
