@@ -2,11 +2,14 @@ package com.replaymod.core.mixins;
 
 import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.ducks.IMinecraft;
+import de.johni0702.minecraft.gui.container.VanillaGuiScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.ResourcePackRepository;
 import net.minecraft.util.Timer;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -109,6 +112,11 @@ public abstract class MixinMinecraft implements IMinecraft {
     @Override
     public void doUpdateDebugProfilerName(int keyCount) {
         updateDebugProfilerName(keyCount);
+    }
+
+    @Inject(method = "displayGuiScreen", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;"))
+    public void onSetGui(GuiScreen newGui, CallbackInfo ci) {
+        VanillaGuiScreen.onGuiClosed();
     }
 
     // Weird injections here to do the equivalent of injecting into the end of the while loop

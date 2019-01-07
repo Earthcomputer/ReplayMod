@@ -27,7 +27,9 @@ import com.replaymod.replay.camera.CameraEntity;
 import com.replaymod.replay.handler.ReplayGuiHandler;
 import com.replaymod.replaystudio.util.I18n;
 import com.replaymod.simplepathing.ReplayModSimplePathing;
+import de.johni0702.minecraft.gui.container.AbstractGuiOverlay;
 import de.johni0702.minecraft.gui.container.GuiScreen;
+import de.johni0702.minecraft.gui.container.VanillaGuiScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -208,6 +210,8 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
     public void onRunGameLoop(Minecraft minecraft) {
         CameraEntity.onPreClientTick();
         ReplaySender.instances.forEach(ReplaySender::onWorldTick);
+        AbstractGuiOverlay.onTickOverlay();
+        VanillaGuiScreen.onTickOverlay();
     }
 
     @Override

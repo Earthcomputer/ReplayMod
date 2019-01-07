@@ -32,12 +32,12 @@ public class RealtimeTimelinePlayer extends AbstractTimelinePlayer {
     }
 
     @Override
-    public void run() {
+    public void onTick() {
         if (secondFrame) {
             secondFrame = false;
             startTime = System.currentTimeMillis();
         }
-        super.run();
+        super.onTick();
         if (firstFrame) {
             firstFrame = false;
             secondFrame = true;
