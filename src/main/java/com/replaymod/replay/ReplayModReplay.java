@@ -12,7 +12,6 @@ import com.replaymod.replay.camera.CameraEntity;
 import com.replaymod.replay.camera.ClassicCameraController;
 import com.replaymod.replay.camera.VanillaCameraController;
 import com.replaymod.replay.gui.overlay.GuiMarkerTimeline;
-import com.replaymod.replay.handler.GuiHandler;
 import com.replaymod.replaystudio.data.Marker;
 import com.replaymod.replaystudio.replay.ReplayFile;
 import com.replaymod.replaystudio.replay.ZipReplayFile;
@@ -138,8 +137,6 @@ public class ReplayModReplay {
 
         Minecraft mc = core.getMinecraft();
         ((IMinecraft) mc).setTimer(new InputReplayTimer(((IMinecraft) mc).getTimer(), this));
-
-        new GuiHandler(this).register();
     }
 
     public void postInit() {

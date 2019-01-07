@@ -24,6 +24,7 @@ import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replay.ReplayModReplay;
 import com.replaymod.replay.ReplaySender;
 import com.replaymod.replay.camera.CameraEntity;
+import com.replaymod.replay.handler.ReplayGuiHandler;
 import com.replaymod.replaystudio.util.I18n;
 import de.johni0702.minecraft.gui.container.GuiScreen;
 import net.minecraft.client.Minecraft;
@@ -291,11 +292,13 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
     public void injectIntoMainMenu(GuiMainMenu gui) {
         EditorGuiHandler.injectIntoMainMenu(gui);
         OnlineGuiHandler.injectIntoMainMenu(gui);
+        ReplayGuiHandler.injectIntoMainMenu(gui);
     }
 
     public void onMainMenuActionPerformed(GuiMainMenu gui, GuiButton button) {
         EditorGuiHandler.onMainMenuActionPerformed(gui, button);
         OnlineGuiHandler.onMainMenuActionPerformed(gui, button);
+        ReplayGuiHandler.onMainMenuActionPerformed(gui, button);
     }
 
     private List<Runnable> replayTimerListeners = new ArrayList<>();
