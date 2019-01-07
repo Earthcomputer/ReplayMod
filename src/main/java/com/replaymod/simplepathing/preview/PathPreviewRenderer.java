@@ -1,5 +1,6 @@
 package com.replaymod.simplepathing.preview;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.pathing.properties.CameraProperties;
 import com.replaymod.pathing.properties.SpectatorProperty;
 import com.replaymod.pathing.properties.TimestampProperty;
@@ -20,9 +21,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.lwjgl.opengl.GL11;
@@ -30,7 +28,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.Comparator;
 import java.util.Optional;
 
-import static com.replaymod.core.ReplayMod.TEXTURE;
+import static com.replaymod.LiteModReplayMod.TEXTURE;
 
 public class PathPreviewRenderer {
     private static final ResourceLocation CAMERA_HEAD = new ResourceLocation("replaymod", "camera_head.png");
@@ -48,16 +46,7 @@ public class PathPreviewRenderer {
         this.replayHandler = replayHandler;
     }
 
-    public void register() {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    public void unregister() {
-        MinecraftForge.EVENT_BUS.unregister(this);
-    }
-
-    @SubscribeEvent
-    public void renderCameraPath(RenderWorldLastEvent event) {
+    public void renderCameraPath() {
         if (!replayHandler.getReplaySender().isAsyncMode() || mc.gameSettings.hideGUI) return;
 
         Entity view = mc.getRenderViewEntity();
@@ -233,11 +222,11 @@ public class PathPreviewRenderer {
         BufferBuilder vertexBuffer = tessellator.getBuffer();
         vertexBuffer.setTranslation(0, 0, 0);
 
-        mc.renderEngine.bindTexture(TEXTURE);
+        mc.getTextureManager().bindTexture(TEXTURE);
 
-        float posX = 80f / ReplayMod.TEXTURE_SIZE;
+        float posX = 80f / LiteModReplayMod.TEXTURE_SIZE;
         float posY = 0f;
-        float size = 10f / ReplayMod.TEXTURE_SIZE;
+        float size = 10f / LiteModReplayMod.TEXTURE_SIZE;
 
         if (mod.isSelected(keyframe)) {
             posY += size;
@@ -282,7 +271,7 @@ public class PathPreviewRenderer {
         BufferBuilder vertexBuffer = tessellator.getBuffer();
         vertexBuffer.setTranslation(0, 0, 0);
 
-        mc.renderEngine.bindTexture(CAMERA_HEAD);
+        mc.getTextureManager().bindTexture(CAMERA_HEAD);
 
         GL11.glPushMatrix();
 

@@ -1,5 +1,6 @@
 package com.replaymod.simplepathing.gui;
 
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.pathing.properties.CameraProperties;
 import com.replaymod.pathing.properties.SpectatorProperty;
 import com.replaymod.pathing.properties.TimestampProperty;
@@ -84,7 +85,7 @@ public class GuiKeyframeTimeline extends AbstractGuiTimeline<GuiKeyframeTimeline
         int visibleTime = (int) (getZoom() * getLength());
         int endTime = getOffset() + visibleTime;
 
-        renderer.bindTexture(ReplayMod.TEXTURE);
+        renderer.bindTexture(LiteModReplayMod.TEXTURE);
 
         SPTimeline timeline = mod.getCurrentTimeline();
 

@@ -1,50 +1,37 @@
 package com.replaymod.simplepathing;
 
-import com.replaymod.core.events.SettingsChangedEvent;
+import com.replaymod.LiteModReplayMod;
+import com.replaymod.core.SettingsRegistry;
+import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replay.ReplayModReplay;
-import com.replaymod.replay.events.ReplayCloseEvent;
-import com.replaymod.replay.events.ReplayOpenEvent;
 import com.replaymod.replay.gui.overlay.GuiReplayOverlay;
 import com.replaymod.replaystudio.pathing.path.Keyframe;
 import com.replaymod.simplepathing.SPTimeline.SPPath;
 import com.replaymod.simplepathing.gui.GuiPathing;
 import com.replaymod.simplepathing.preview.PathPreview;
 import lombok.Getter;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
-@Mod(modid = ReplayModSimplePathing.MOD_ID,
-        version = "@MOD_VERSION@",
-        acceptedMinecraftVersions = "@MC_VERSION@",
-        acceptableRemoteVersions = "*",
-        clientSideOnly = true,
-        useMetadata = true)
 public class ReplayModSimplePathing {
-    public static final String MOD_ID = "replaymod-simplepathing";
-
-    @Mod.Instance(MOD_ID)
     public static ReplayModSimplePathing instance;
 
-    private ReplayMod core;
+    private LiteModReplayMod core;
 
     public static Logger LOGGER;
 
     private GuiPathing guiPathing;
 
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        LOGGER = event.getModLog();
-        core = ReplayMod.instance;
+    private PathPreview pathPreview;
+
+    public void init() {
+        LOGGER = LogManager.getLogger("replaymod-simplepathing");
+        core = LiteModReplayMod.instance;
 
         core.getSettingsRegistry().register(Setting.class);
 
-        MinecraftForge.EVENT_BUS.register(this);
-
-        PathPreview pathPreview = new PathPreview(this);
+        pathPreview = new PathPreview(this);
         pathPreview.register();
 
         core.getKeyBindingRegistry().registerKeyBinding("replaymod.input.keyframerepository", Keyboard.KEY_X, () -> {
@@ -61,26 +48,30 @@ public class ReplayModSimplePathing {
         });
     }
 
-    @SubscribeEvent
-    public void postReplayOpen(ReplayOpenEvent.Post event) {
+    public void postReplayOpen(ReplayHandler handler) {
         clearCurrentTimeline();
-        guiPathing = new GuiPathing(core, this, event.getReplayHandler());
+        guiPathing = new GuiPathing(core, this, handler);
+        pathPreview.onReplayOpen(handler);
     }
 
-    @SubscribeEvent
-    public void onReplayClose(ReplayCloseEvent.Post event) {
+    public void onReplayClose(ReplayHandler handler) {
         currentTimeline = null;
         guiPathing = null;
         selectedPath = null;
+        pathPreview.onReplayClose(handler);
     }
 
-    @SubscribeEvent
-    public void onSettingsChanged(SettingsChangedEvent event) {
-        if (event.getKey() == Setting.DEFAULT_INTERPOLATION) {
+    public void onSettingsChanged(SettingsRegistry.SettingKey<?> key) {
+        if (key == Setting.DEFAULT_INTERPOLATION) {
             if (currentTimeline != null && guiPathing != null) {
                 updateDefaultInterpolatorType();
             }
         }
+        pathPreview.onSettingsChanged(key);
+    }
+
+    public PathPreview getPathPreview() {
+        return pathPreview;
     }
 
     private GuiReplayOverlay getReplayOverlay() {
@@ -133,7 +124,7 @@ public class ReplayModSimplePathing {
         currentTimeline.setDefaultInterpolatorType(newDefaultType);
     }
 
-    public ReplayMod getCore() {
+    public LiteModReplayMod getCore() {
         return core;
     }
 

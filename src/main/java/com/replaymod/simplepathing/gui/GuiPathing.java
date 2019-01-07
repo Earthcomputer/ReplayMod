@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import com.replaymod.LiteModReplayMod;
 import com.replaymod.core.utils.Utils;
 import com.replaymod.pathing.gui.GuiKeyframeRepository;
 import com.replaymod.pathing.player.RealtimeTimelinePlayer;
@@ -45,7 +46,6 @@ import de.johni0702.minecraft.gui.popup.GuiInfoPopup;
 import de.johni0702.minecraft.gui.popup.GuiYesNoPopup;
 import de.johni0702.minecraft.gui.utils.Colors;
 import net.minecraft.crash.CrashReport;
-import net.minecraftforge.fml.common.Loader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
@@ -85,7 +85,7 @@ public class GuiPathing {
             }
             return tooltip;
         }
-    }.setSize(20, 20).setTexture(ReplayMod.TEXTURE, ReplayMod.TEXTURE_SIZE).setTooltip(new GuiTooltip());
+    }.setSize(20, 20).setTexture(LiteModReplayMod.TEXTURE, LiteModReplayMod.TEXTURE_SIZE).setTooltip(new GuiTooltip());
 
     public final GuiTexturedButton renderButton = new GuiTexturedButton().onClick(new Runnable() {
         @Override
@@ -106,7 +106,7 @@ public class GuiPathing {
 
             new GuiRenderSettings(replayHandler, timeline).display();
         }
-    }).setSize(20, 20).setTexture(ReplayMod.TEXTURE, ReplayMod.TEXTURE_SIZE).setTexturePosH(40, 0)
+    }).setSize(20, 20).setTexture(LiteModReplayMod.TEXTURE, LiteModReplayMod.TEXTURE_SIZE).setTexturePosH(40, 0)
             .setTooltip(new GuiTooltip().setI18nText("replaymod.gui.ingame.menu.renderpath"));
 
     public final GuiTexturedButton positionKeyframeButton = new GuiTexturedButton() {
@@ -130,7 +130,7 @@ public class GuiPathing {
             }
             return tooltip;
         }
-    }.setSize(20, 20).setTexture(ReplayMod.TEXTURE, ReplayMod.TEXTURE_SIZE).setTooltip(new GuiTooltip());
+    }.setSize(20, 20).setTexture(LiteModReplayMod.TEXTURE, LiteModReplayMod.TEXTURE_SIZE).setTooltip(new GuiTooltip());
 
     public final GuiTexturedButton timeKeyframeButton = new GuiTexturedButton() {
         @Override
@@ -145,7 +145,7 @@ public class GuiPathing {
             }
             return tooltip;
         }
-    }.setSize(20, 20).setTexture(ReplayMod.TEXTURE, ReplayMod.TEXTURE_SIZE).setTooltip(new GuiTooltip());
+    }.setSize(20, 20).setTexture(LiteModReplayMod.TEXTURE, LiteModReplayMod.TEXTURE_SIZE).setTooltip(new GuiTooltip());
 
     public final GuiKeyframeTimeline timeline = new GuiKeyframeTimeline(this){
         @Override
@@ -174,7 +174,7 @@ public class GuiPathing {
         public void run() {
             zoomTimeline(2d / 3d);
         }
-    }).setTexture(ReplayMod.TEXTURE, ReplayMod.TEXTURE_SIZE).setTexturePosH(40, 20)
+    }).setTexture(LiteModReplayMod.TEXTURE, LiteModReplayMod.TEXTURE_SIZE).setTexturePosH(40, 20)
             .setTooltip(new GuiTooltip().setI18nText("replaymod.gui.ingame.menu.zoomin"));
 
     public final GuiTexturedButton zoomOutButton = new GuiTexturedButton().setSize(9, 9).onClick(new Runnable() {
@@ -182,7 +182,7 @@ public class GuiPathing {
         public void run() {
             zoomTimeline(3d / 2d);
         }
-    }).setTexture(ReplayMod.TEXTURE, ReplayMod.TEXTURE_SIZE).setTexturePosH(40, 30)
+    }).setTexture(LiteModReplayMod.TEXTURE, LiteModReplayMod.TEXTURE_SIZE).setTexturePosH(40, 30)
             .setTooltip(new GuiTooltip().setI18nText("replaymod.gui.ingame.menu.zoomout"));
 
     public final GuiPanel zoomButtonPanel = new GuiPanel()
@@ -208,9 +208,10 @@ public class GuiPathing {
 
     {
         panel.addElements(new HorizontalLayout.Data(0.5), playPauseButton);
-        if (Loader.isModLoaded("replaymod-render")) {
+        // TODO: modularize?
+        //if (Loader.isModLoaded("replaymod-render")) {
             panel.addElements(new HorizontalLayout.Data(0.5), renderButton);
-        }
+        //}
         panel.addElements(new HorizontalLayout.Data(0.5), positionKeyframeButton, timeKeyframeButton, timelinePanel);
     }
 
@@ -256,7 +257,7 @@ public class GuiPathing {
         }
     };
 
-    private final ReplayMod core;
+    private final LiteModReplayMod core;
     private final ReplayModSimplePathing mod;
     private final ReplayHandler replayHandler;
     private final RealtimeTimelinePlayer player;
@@ -265,7 +266,7 @@ public class GuiPathing {
     private Consumer<Double> entityTrackerLoadingProgress;
     private SettableFuture<Void> entityTrackerFuture;
 
-    public GuiPathing(final ReplayMod core, final ReplayModSimplePathing mod, final ReplayHandler replayHandler) {
+    public GuiPathing(final LiteModReplayMod core, final ReplayModSimplePathing mod, final ReplayHandler replayHandler) {
         this.core = core;
         this.mod = mod;
         this.replayHandler = replayHandler;

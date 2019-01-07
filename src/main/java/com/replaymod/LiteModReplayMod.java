@@ -26,6 +26,7 @@ import com.replaymod.replay.ReplaySender;
 import com.replaymod.replay.camera.CameraEntity;
 import com.replaymod.replay.handler.ReplayGuiHandler;
 import com.replaymod.replaystudio.util.I18n;
+import com.replaymod.simplepathing.ReplayModSimplePathing;
 import de.johni0702.minecraft.gui.container.GuiScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -71,6 +72,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         ReplayModRecording.instance = new ReplayModRecording();
         ReplayModRender.instance = new ReplayModRender();
         ReplayModReplay.instance = new ReplayModReplay();
+        ReplayModSimplePathing.instance = new ReplayModSimplePathing();
     }
 
     public KeyBindingRegistry getKeyBindingRegistry() {
@@ -117,6 +119,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         ReplayModRecording.instance.init();
         ReplayModRender.instance.init();
         ReplayModReplay.instance.init();
+        ReplayModSimplePathing.instance.init();
     }
 
     @Override
@@ -237,6 +240,12 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         ReplayModRecording.instance.getConnectionEventHandler().getGuiOverlay().renderRecordingIndicator();
     }
 
+    public void onRenderWorldLast(int pass, float partialTicks) {
+        if (ReplayModSimplePathing.instance.getPathPreview().getRenderer() != null) {
+            ReplayModSimplePathing.instance.getPathPreview().getRenderer().renderCameraPath();
+        }
+    }
+
     @Override
     public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
         ReplayModCompat.instance.onRenderTickEnd();
@@ -273,6 +282,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
 
     public void postReplayOpened(ReplayHandler handler) {
         ReplayModExtras.instance.postReplayOpened(handler);
+        ReplayModSimplePathing.instance.postReplayOpen(handler);
     }
 
     public void preReplayClosed(ReplayHandler handler) {
@@ -283,6 +293,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
 
     public void postReplayClosed(ReplayHandler handler) {
         ReplayModExtras.instance.postReplayClosed(handler);
+        ReplayModSimplePathing.instance.onReplayClose(handler);
     }
 
     public boolean onDispatchKeyPresses() {
@@ -323,6 +334,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
 
     public void onSettingChanged(SettingsRegistry registry, SettingsRegistry.SettingKey<?> key) {
         CameraEntity.onSettingsChanged(key);
+        ReplayModSimplePathing.instance.onSettingsChanged(key);
     }
 
     public void onKeyInput() {

@@ -7,7 +7,8 @@
     "MixinGuiMainMenu",
     "MixinMinecraft",
     "MixinTimer",
-    "MixinGuiScreen"
+    "MixinGuiScreen",
+    "MixinEntityRenderer"
   ],
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.6.11",
