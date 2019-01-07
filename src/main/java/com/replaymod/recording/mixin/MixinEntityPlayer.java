@@ -18,17 +18,19 @@ public class MixinEntityPlayer {
 
     @Inject(method = "onUpdate", at = @At("HEAD"))
     public void onTick(CallbackInfo ci) {
-        ReplayModRecording.instance.getRecordingEventHandler().onPlayerTick((EntityPlayer) (Object) this);
+        if (ReplayModRecording.instance.getRecordingEventHandler() != null)
+            ReplayModRecording.instance.getRecordingEventHandler().onPlayerTick((EntityPlayer) (Object) this);
     }
 
     @Inject(method = "trySleep", at = @At("HEAD"))
     public void onSleep(BlockPos pos, CallbackInfoReturnable<EntityPlayer.SleepResult> ci) {
-        ReplayModRecording.instance.getRecordingEventHandler().onSleep((EntityPlayer) (Object) this, pos);
+        if (ReplayModRecording.instance.getRecordingEventHandler() != null)
+            ReplayModRecording.instance.getRecordingEventHandler().onSleep((EntityPlayer) (Object) this, pos);
     }
 
     @Inject(method = "interactOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;processInitialInteract(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/EnumHand;)Z"))
     public void onInteract(Entity entity, EnumHand hand, CallbackInfoReturnable<EnumActionResult> ci) {
-        if (entity instanceof EntityMinecart) {
+        if (ReplayModRecording.instance.getRecordingEventHandler() != null && entity instanceof EntityMinecart) {
             ReplayModRecording.instance.getRecordingEventHandler().enterMinecart((EntityPlayer) (Object) this, (EntityMinecart) entity);
         }
     }

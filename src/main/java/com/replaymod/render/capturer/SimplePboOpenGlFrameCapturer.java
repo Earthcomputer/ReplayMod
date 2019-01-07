@@ -69,7 +69,7 @@ public class SimplePboOpenGlFrameCapturer extends OpenGlFrameCapturer<OpenGlFram
 
         if (OpenGlHelper.isFramebufferEnabled()) {
             frameBuffer().bindFramebufferTexture();
-            GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, 0);
+            GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, 0); // FIXME: INVALID OPERATION
             frameBuffer().unbindFramebufferTexture();
         } else {
             GL11.glReadPixels(0, 0, getFrameWidth(), getFrameHeight(), GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, 0);

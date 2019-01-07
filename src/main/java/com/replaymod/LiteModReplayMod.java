@@ -248,7 +248,8 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
 
     @Override
     public void onPostRenderHUD(int screenWidth, int screenHeight) {
-        ReplayModRecording.instance.getConnectionEventHandler().getGuiOverlay().renderRecordingIndicator();
+        if (ReplayModRecording.instance.getConnectionEventHandler().getGuiOverlay() != null)
+            ReplayModRecording.instance.getConnectionEventHandler().getGuiOverlay().renderRecordingIndicator();
     }
 
     public void onRenderWorldLast(int pass, float partialTicks) {
