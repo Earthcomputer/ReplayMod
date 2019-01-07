@@ -55,6 +55,7 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
     public static final int TEXTURE_SIZE = 256;
 
     public static LiteModReplayMod instance;
+    private static boolean hasInitialized = false;
 
     public static String getMinecraftVersion() {
         return "1.12";
@@ -122,6 +123,8 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         ReplayModRender.instance.init();
         ReplayModReplay.instance.init();
         ReplayModSimplePathing.instance.init();
+
+        hasInitialized = true;
     }
 
     @Override
@@ -216,6 +219,9 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
 
     @Override
     public void onRender() {
+        if (!hasInitialized)
+            return;
+
         while (!toRunLater.isEmpty()) {
             Runnable task = toRunLater.remove(0);
             runLater(task);
@@ -223,7 +229,8 @@ public class LiteModReplayMod implements LiteMod, InitCompleteListener, HUDRende
         keyBindingRegistry.onTick();
         ReplayModCompat.instance.onRenderTickStart();
         ReplayModExtras.instance.beginTick();
-        ReplayModRecording.instance.getRecordingEventHandler().checkForGamePaused();
+        if (ReplayModRecording.instance.getRecordingEventHandler() != null)
+            ReplayModRecording.instance.getRecordingEventHandler().checkForGamePaused();
         CameraEntity.onRenderUpdate();
     }
 

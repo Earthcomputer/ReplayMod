@@ -37,7 +37,7 @@ public class SettingsRegistry {
     }
 
     public void register(SettingKey<?> key) {
-        Object value = NULL_OBJECT;
+        Object value = key.getDefault();
         /*
         if (configuration != null) {
             if (key.getDefault() instanceof Boolean) {

@@ -13,25 +13,25 @@ public class MixinGlStateManager {
 
     @Inject(method = "enableFog", at = @At("TAIL"))
     private static void onEnableFog(CallbackInfo ci) {
-        if (ODSFrameCapturer.instance.getShaderProgram() != null)
+        if (ODSFrameCapturer.instance != null && ODSFrameCapturer.instance.getShaderProgram() != null)
             ODSFrameCapturer.instance.getFogEnabledVariable().set(true);
     }
 
     @Inject(method = "disableFog", at = @At("TAIL"))
     private static void onDisableFog(CallbackInfo ci) {
-        if (ODSFrameCapturer.instance.getShaderProgram() != null)
+        if (ODSFrameCapturer.instance != null && ODSFrameCapturer.instance.getShaderProgram() != null)
             ODSFrameCapturer.instance.getFogEnabledVariable().set(false);
     }
 
     @Inject(method = "enableTexture2D", at = @At("TAIL"))
     private static void onEnableTexture2D(CallbackInfo ci) {
-        if (ODSFrameCapturer.instance.getShaderProgram() != null)
+        if (ODSFrameCapturer.instance != null && ODSFrameCapturer.instance.getShaderProgram() != null)
             ODSFrameCapturer.instance.getTextureVariables()[IGlStateManager.getActiveTextureUnit()].set(true);
     }
 
     @Inject(method = "disableTexture2D", at = @At("TAIL"))
     private static void onDisableTexture2D(CallbackInfo ci) {
-        if (ODSFrameCapturer.instance.getShaderProgram() != null)
+        if (ODSFrameCapturer.instance != null && ODSFrameCapturer.instance.getShaderProgram() != null)
             ODSFrameCapturer.instance.getTextureVariables()[IGlStateManager.getActiveTextureUnit()].set(false);
     }
 
