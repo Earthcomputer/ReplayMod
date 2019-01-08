@@ -109,7 +109,8 @@ public class ReplayGuiHandler {
             button.enabled = false;
             mc.displayGuiScreen(new GuiMainMenu());
             try {
-                ReplayModReplay.instance.getReplayHandler().endReplay();
+                if (ReplayModReplay.instance.getReplayHandler() != null)
+                    ReplayModReplay.instance.getReplayHandler().endReplay();
             } catch (IOException e) {
                 e.printStackTrace();
             }
